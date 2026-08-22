@@ -1,0 +1,111 @@
+/* front/app/globals.css */
+
+@import "tailwindcss";
+@plugin "@tailwindcss/typography";
+
+/* ==========================================
+   CUSTOMIZAÇÃO DO HUB DE EVOLUÇÃO (PROSE v4)
+   ========================================== */
+
+/* Overrides para a classe .prose do HUB */
+.prose {
+  max-width: none !important;
+}
+
+/* Títulos (Headings) - Espaçosos e com forte hierarquia */
+.prose-headings {
+  margin-top: 2.5rem !important;
+  margin-bottom: 0.75rem !important;
+  font-weight: 800 !important;
+  color: #0f172a !important; /* Slate-900 */
+}
+
+/* Parágrafos - Aumentar line-height para excelente leitura */
+.prose-p {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+  line-height: 1.8 !important;
+  color: #334155 !important; /* Slate-700 */
+}
+
+/* Listas Não Ordenadas (os planos de ação) - Transformar em cards */
+.prose-ul {
+  list-style-type: none !important;
+  padding-left: 0 !important;
+  margin-top: 1.5rem !important;
+  display: grid !important;
+  gap: 1.25rem !important;
+}
+
+/* Itens de Lista - Estilo Card Estratégico */
+.prose-li {
+  margin: 0 !important;
+  padding: 1.25rem !important;
+  background-color: #ffffff !important;
+  border: 1px solid #e2e8f0 !important; /* Slate-200 */
+  border-radius: 1rem !important;
+  display: flex !important;
+  align-items: start !important;
+  position: relative !important;
+  font-weight: 500 !important;
+  color: #1e293b !important; /* Slate-800 */
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.05) !important;
+}
+
+/* Marcador Estratégico customizado */
+.prose-li::before {
+  content: '' !important;
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  border-radius: 50% !important;
+  background-color: #2c9be3 !important;
+  margin-right: 1.25rem !important;
+  flex-shrink: 0 !important;
+  margin-top: 0.2rem !important;
+}
+
+/* Links (As recomendações do Tavily) */
+.prose-a {
+  color: #2c9be3 !important;
+  text-decoration-line: none !important;
+  font-weight: 600 !important;
+  border-bottom: 2px solid transparent !important;
+  transition: all 0.2s !important;
+}
+
+.prose-a:hover {
+  color: #1d81c2 !important;
+  border-bottom-color: #2c9be3 !important;
+}
+
+/* Forçar tom de fundo off-white no root */
+:root {
+  background-color: #f1f5f9;
+  color: #0f172a;
+}
+
+/* =========================================
+   Personalização da Scrollbar
+   ========================================= */
+
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #cbd5e1;
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: #94a3b8;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+}

@@ -1,0 +1,49 @@
+# =========================
+# SEGURANÇA E SECRETS (CRÍTICO)
+# =========================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# =========================
+# FRONTEND (Next.js / Node)
+# =========================
+front/node_modules/
+front/.next/
+front/out/
+front/build/
+front/coverage/
+front/.swc/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnp.*
+
+# =========================
+# BACKEND (Django / Python / Poetry)
+# =========================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+back/.venv/
+back/venv/
+back/env/
+back/db.sqlite3
+back/media/
+back/staticfiles/
+celerybeat-schedule
+*.log
+
+# =========================
+# IDEs E SISTEMA OPERACIONAL
+# =========================
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+ehthumbs.db
+tasks.md
