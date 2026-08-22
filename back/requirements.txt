@@ -1,0 +1,8 @@
+django>=4.0
+psycopg2-binary>=2.9
+django-storages>=1.14
+boto3>=1.28
+gunicorn>=21.0
+python-dotenv>=1.0
+openai>=1.0
+tavily-python>=0.3
