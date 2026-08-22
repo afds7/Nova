@@ -7,3 +7,4 @@ python-dotenv>=1.0
 openai>=1.0
 tavily-python>=0.3
 dj-database-url
+djangorestframework>=3.14
