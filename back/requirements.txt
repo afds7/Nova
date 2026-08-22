@@ -8,3 +8,4 @@ openai>=1.0
 tavily-python>=0.3
 dj-database-url
 djangorestframework>=3.14
+django-cors-headers>=4.3
