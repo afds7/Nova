@@ -110,13 +110,15 @@ export default function Home() {
 
       {/* Header com logo */}
       <header className="absolute top-0 left-0 p-5 md:p-7 z-10">
-        <img
-          src="/logo-nova.png"
-          alt="Logo NOVA Hub"
-          width={300}
-          height={96}
-          className="h-20 w-auto object-contain md:h-24"
-        />
+        <div className="relative h-16 w-48 overflow-hidden md:h-20 md:w-56">
+          <img
+            src="/logo-nova.png"
+            alt="Logo NOVA Hub"
+            width={650}
+            height={366}
+            className="absolute left-[-205px] top-[-128px] max-w-none"
+          />
+        </div>
       </header>
 
       {/* Quiz */}

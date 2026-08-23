@@ -20,13 +20,13 @@ export const calculateScores = (answers: Record<number, number>) => {
   const ievScore = Math.round((D * 0.25 + P * 0.30 + M * 0.25 + S * 0.20) * 20);
 
   const pillars = [
-    { name: 'Base Acadêmica', score: A },
-    { name: 'Visão Estratégica', score: E },
-    { name: 'Foco Comportamental', score: C },
-    { name: 'Diferenciação', score: D },
-    { name: 'Projetos e Prova Real', score: P },
-    { name: 'Contato com Mundo Real', score: M },
-    { name: 'Posicionamento e Networking', score: S },
+    { name: 'Base Acadêmica', score: A, order: 0 },
+    { name: 'Visão Estratégica', score: E, order: 1 },
+    { name: 'Foco Comportamental', score: C, order: 2 },
+    { name: 'Diferenciação', score: D, order: 3 },
+    { name: 'Projetos e Prova Real', score: P, order: 4 },
+    { name: 'Contato com Mundo Real', score: M, order: 5 },
+    { name: 'Posicionamento e Networking', score: S, order: 6 },
   ];
 
   // Ordenação com tratamento de edge case (notas perfeitamente iguais)
@@ -35,9 +35,8 @@ export const calculateScores = (answers: Record<number, number>) => {
     if (b.score !== a.score) {
       return b.score - a.score;
     }
-    // Em caso de EMPATE exato, embaralha aleatoriamente (retorna -0.5 ou 0.5).
-    // Evita o viés de leitura do array onde o último item (Networking) era sempre selecionado como fraqueza.
-    return Math.random() - 0.5;
+    // Empates usam uma ordem fixa para a sugestão não mudar a cada renderização.
+    return a.order - b.order;
   });
 
   return {

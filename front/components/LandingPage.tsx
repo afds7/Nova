@@ -63,7 +63,9 @@ export default function LandingPage({ onStart }: LandingPageProps) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <img src="/logo-nova.png" alt="NOVA Hub" width={300} height={96} className="h-20 w-auto object-contain md:h-24" />
+          <div className="relative h-16 w-48 overflow-hidden md:h-20 md:w-56">
+            <img src="/logo-nova.png" alt="NOVA Hub" width={650} height={366} className="absolute left-[-205px] top-[-128px] max-w-none" />
+          </div>
         </motion.div>
 
         <motion.button
