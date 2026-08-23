@@ -13,11 +13,10 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-muda-isso-em-producao')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# No Railway, você vai criar uma variável DEBUG=False. Localmente o .env pode ter DEBUG=True
 DEBUG = os.getenv('DEBUG', 'False') == 'True'
 
-# Configuração de Hosts Permitidos (Railway te dará um domínio, coloque ele aqui depois)
-ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
+# Configuração de Hosts Permitidos
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', 'localhost,127.0.0.1,.railway.app').split(',')
 
 # Application definition
 INSTALLED_APPS = [
@@ -39,7 +38,7 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware', # Deve vir o mais alto possível
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Para servir arquivos estáticos no Railway (precisaremos instalar whitenoise depois, se usar admin)
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Para servir arquivos estáticos no Railway
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -68,9 +67,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# Database configuration usando dj-database-url (Padrão ouro para Docker e Railway)
-# Se DATABASE_URL existir (Railway), ele usa. Se não, tenta usar as variáveis individuais do docker-compose.
-# Adicionamos um fallback automático para SQLite se o host do banco de dados não for o container "db" e não houver DATABASE_URL.
+# Database configuration usando dj-database-url
 if not os.getenv('DATABASE_URL') and os.getenv('DB_HOST') != 'db':
     DATABASES = {
         'default': {
@@ -89,10 +86,10 @@ else:
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
-    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',},
-    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',},
+    {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
+    {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
 
 # Internationalization
@@ -105,23 +102,45 @@ USE_TZ = True
 STATIC_URL = 'static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# Storage S3/R2: arquivos nunca são persistidos no disco local do Railway.
+# Storage S3/R2
 AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID', '')
 AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY', '')
 AWS_STORAGE_BUCKET_NAME = os.getenv('AWS_STORAGE_BUCKET_NAME', '')
 AWS_S3_REGION_NAME = os.getenv('AWS_S3_REGION_NAME', 'auto')
 AWS_S3_ENDPOINT_URL = os.getenv('AWS_S3_ENDPOINT_URL', '')
+AWS_S3_PUBLIC_BASE_URL = os.getenv('AWS_S3_PUBLIC_BASE_URL', '').rstrip('/')
+AWS_S3_SIGNATURE_VERSION = 's3v4'
+AWS_S3_FILE_OVERWRITE = False
+
+STORAGES = {
+    'default': {
+        'BACKEND': 'storages.backends.s3.S3Storage',
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ==========================================
-# CONFIGURAÇÕES DE SEGURANÇA E CORS (MVP)
+# CONFIGURAÇÕES DE SEGURANÇA, CORS E CSRF
 # ==========================================
 
-# Aqui você coloca a URL do seu Front-end da Vercel depois
-CORS_ALLOW_ALL_ORIGINS = True
+# Libera chamadas de origens externas (para testes e MVP)
+CORS_ALLOW_ALL_ORIGINS = os.getenv('CORS_ALLOW_ALL_ORIGINS', 'True') == 'True'
 
-# Configurações Rest Framework
+# Origens permitidas explícitas via env var (separadas por vírgula)
+CORS_ALLOWED_ORIGINS = [
+    origin for origin in os.getenv('CORS_ALLOWED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',') if origin
+]
+
+# Origens confiáveis para validação CSRF (essencial para conexões Vercel <-> Railway)
+CSRF_TRUSTED_ORIGINS = [
+    origin for origin in os.getenv('CSRF_TRUSTED_ORIGINS', 'http://localhost:3000,http://127.0.0.1:3000').split(',') if origin
+]
+
+# Configurações Django Rest Framework
 REST_FRAMEWORK = {
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
@@ -144,7 +163,6 @@ LOGGING = {
         },
     },
     'loggers': {
-        # O nome aqui deve bater com a pasta do seu app ('assessments')
         'assessments': {
             'handlers': ['console'],
             'level': 'INFO',

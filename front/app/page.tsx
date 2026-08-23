@@ -109,13 +109,13 @@ export default function Home() {
       />
 
       {/* Header com logo */}
-      <header className="absolute top-0 left-0 p-6 z-10">
+      <header className="absolute top-0 left-0 p-5 md:p-7 z-10">
         <img
           src="/logo-nova.png"
           alt="Logo NOVA Hub"
-          width={180}
-          height={58}
-          className="object-contain"
+          width={300}
+          height={96}
+          className="h-20 w-auto object-contain md:h-24"
         />
       </header>
 

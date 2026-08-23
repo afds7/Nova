@@ -35,6 +35,9 @@ export interface MissionSuggestion {
   prazo: string | null;
   prioridade: number;
   motivo_recomendacao: string;
+  competencia_alvo: string;
+  origem_geracao: 'regra' | 'regra+ia';
+  gerada_por_ia: boolean;
 }
 
 export interface NextFocus {
@@ -42,6 +45,20 @@ export interface NextFocus {
   nivel_atual: number | null;
   area: string;
   mensagem: string;
+}
+
+export interface PendingEvidenceDraft {
+  id: string;
+  titulo: string;
+  descricao: string;
+  tipo: string;
+  missao_relacionada: string | null;
+}
+
+export interface LastCompletedMission {
+  id: string;
+  titulo: string;
+  concluida_em: string | null;
 }
 
 export interface DashboardData {
@@ -78,6 +95,8 @@ export interface DashboardData {
 
   // Meta
   last_updated: string;
+  ultima_missao_concluida: LastCompletedMission | null;
+  rascunho_evidencia_pendente: PendingEvidenceDraft | null;
 }
 
 // ── Store ──────────────────────────────────────────────────────────────────
@@ -104,8 +123,8 @@ export const useDashboardStore = create<DashboardState>((set) => ({
     try {
       const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
       const [dashboardRes, suggestionsRes] = await Promise.all([
-        fetch(`${apiUrl}/api/assessments/dashboard/?profile_id=${encodeURIComponent(profileId)}`),
-        fetch(`${apiUrl}/api/assessments/missions/suggestions/?profile_id=${encodeURIComponent(profileId)}`),
+        fetch(`${apiUrl}/api/dashboard/resumo/?profile_id=${encodeURIComponent(profileId)}`),
+        fetch(`${apiUrl}/api/missoes/sugeridas/?profile_id=${encodeURIComponent(profileId)}`),
       ]);
 
       if (!dashboardRes.ok) {

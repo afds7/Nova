@@ -76,9 +76,10 @@ class Competencia(models.Model):
 class HistoricoIEP(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     perfil = models.ForeignKey(PerfilAluno, on_delete=models.CASCADE, related_name='historicos_iep')
-    iep_score = models.IntegerField()
-    iev_score = models.IntegerField(default=0)
+    iep_score = models.DecimalField(max_digits=5, decimal_places=2)
+    iev_score = models.DecimalField(max_digits=5, decimal_places=2, default=0)
     diagnostic = models.CharField(max_length=255)
+    detalhamento = models.JSONField(default=dict, blank=True)
     created_at = models.DateTimeField(auto_now_add=True, editable=False) # Editable False guarantees append-only intent on UI/Admin
 
     class Meta:
@@ -148,6 +149,10 @@ class Missao(models.Model):
 
 class MissaoAluno(models.Model):
     STATUS_CHOICES = Missao.STATUS_CHOICES
+    ORIGEM_GERACAO_CHOICES = [
+        ('regra', 'Regra'),
+        ('regra+ia', 'Regra + IA'),
+    ]
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     missao = models.ForeignKey(
@@ -160,6 +165,9 @@ class MissaoAluno(models.Model):
     progresso = models.PositiveSmallIntegerField(default=0)
     prioridade = models.PositiveSmallIntegerField(default=0)
     motivo_recomendacao = models.TextField(blank=True)
+    origem_geracao = models.CharField(
+        max_length=10, choices=ORIGEM_GERACAO_CHOICES, default='regra'
+    )
     prazo = models.DateField(null=True, blank=True)
     iniciada_em = models.DateTimeField(null=True, blank=True)
     concluida_em = models.DateTimeField(null=True, blank=True)
@@ -255,3 +263,46 @@ class Evidencia(models.Model):
 
     def __str__(self):
         return f"{self.titulo} — {self.tipo_arquivo}"
+
+
+class EvidenciaPortfolio(models.Model):
+    """Metadados de um arquivo enviado diretamente para S3/R2."""
+
+    TIPO_CHOICES = [
+        ('projeto', 'Projeto'),
+        ('certificado', 'Certificado'),
+        ('imagem', 'Imagem'),
+        ('outro', 'Outro'),
+    ]
+    ORIGEM_CHOICES = [
+        ('missao', 'Missão'),
+        ('manual', 'Manual'),
+    ]
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    perfil = models.ForeignKey(
+        PerfilAluno, on_delete=models.CASCADE, related_name='evidencias_portfolio'
+    )
+    titulo = models.CharField(max_length=255)
+    descricao = models.TextField(blank=True)
+    tipo = models.CharField(max_length=20, choices=TIPO_CHOICES)
+    arquivo_url = models.URLField(max_length=2048, blank=True)
+    arquivo_chave = models.CharField(max_length=512, blank=True)
+    origem = models.CharField(max_length=10, choices=ORIGEM_CHOICES, default='manual')
+    missao_relacionada = models.ForeignKey(
+        MissaoAluno, on_delete=models.SET_NULL, null=True, blank=True,
+        related_name='evidencias_portfolio'
+    )
+    ativo = models.BooleanField(default=True)
+    criado_em = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = 'evidencias_portfolio'
+        ordering = ['-criado_em']
+        indexes = [
+            models.Index(fields=['perfil', 'ativo', '-criado_em']),
+            models.Index(fields=['arquivo_chave']),
+        ]
+
+    def __str__(self):
+        return f"{self.titulo} ({self.perfil.nome})"

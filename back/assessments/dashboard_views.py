@@ -3,8 +3,10 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from .models import PerfilAluno
+from .models import EvidenciaPortfolio, MissaoAluno
 from .serializers import DashboardSerializer, MissionSuggestionSerializer
 from .services import MotorDeMissoes
+from diagnostico.services.missoes_ia import personalizar_missao
 
 logger = logging.getLogger('assessments')
 
@@ -109,7 +111,15 @@ class DashboardView(APIView):
                 m['prazo'] = m['prazo'].isoformat()
 
         # ── Portfólio ──────────────────────────────────────────────────────
-        portfolio_count = perfil.portfolio.count()
+        portfolio_count = EvidenciaPortfolio.objects.filter(perfil=perfil, ativo=True).count()
+        ultima_missao = (
+            MissaoAluno.objects.filter(perfil=perfil, status='concluida')
+            .select_related('missao').order_by('-concluida_em').first()
+        )
+        rascunho = (
+            EvidenciaPortfolio.objects.filter(perfil=perfil, origem='missao', ativo=False)
+            .order_by('-criado_em').first()
+        )
 
         # ── Próximo Foco (recomendação) ────────────────────────────────────
         proximo_foco = None
@@ -173,6 +183,18 @@ class DashboardView(APIView):
 
             # Metadados
             'last_updated': perfil.updated_at,
+            'ultima_missao_concluida': {
+                'id': str(ultima_missao.missao_id),
+                'titulo': ultima_missao.missao.titulo,
+                'concluida_em': ultima_missao.concluida_em,
+            } if ultima_missao else None,
+            'rascunho_evidencia_pendente': {
+                'id': str(rascunho.id),
+                'titulo': rascunho.titulo,
+                'descricao': rascunho.descricao,
+                'tipo': rascunho.tipo,
+                'missao_relacionada': str(rascunho.missao_relacionada_id) if rascunho.missao_relacionada_id else None,
+            } if rascunho else None,
         }
         return Response(DashboardSerializer(payload).data, status=status.HTTP_200_OK)
 
@@ -200,23 +222,60 @@ class MissionSuggestionsView(APIView):
             )
 
         assignments = MotorDeMissoes.recomendar(perfil.id)
-        missions = [
-            {
-                'id': assignment.missao.id,
-                'titulo': assignment.missao.titulo,
-                'descricao': assignment.missao.descricao,
-                'area_relacionada': assignment.missao.area_relacionada,
-                'competencias_desenvolvidas': assignment.missao.competencias_desenvolvidas or [],
-                'dificuldade': assignment.missao.dificuldade,
-                'duracao_estimada_minutos': assignment.missao.duracao_estimada_minutos,
-                'prazo_dias': assignment.missao.prazo_dias,
-                'dias_uteis_estimados': assignment.missao.dias_uteis_estimados,
+        competency_levels = {item.nome: item.nivel for item in perfil.competencias.all()}
+        strongest = [name for name, level in competency_levels.items() if level >= 4]
+        priority = min(competency_levels.items(), key=lambda item: item[1], default=(None, None))[0]
+        completed_types = list(
+            perfil.missoes_aluno.filter(status='concluida')
+            .values_list('missao__dificuldade', flat=True)[:10]
+        )
+        objective_area = getattr(getattr(perfil, 'objetivo', None), 'area_curso', '')
+        missions = []
+        for assignment in assignments:
+            mission = assignment.missao
+            catalog_competencies = mission.competencias_desenvolvidas or []
+            if isinstance(catalog_competencies, dict):
+                catalog_competencies = list(catalog_competencies.keys())
+            competency_gap = next(
+                (str(name) for name in catalog_competencies if str(name) in competency_levels and competency_levels[str(name)] <= 2),
+                priority or (str(catalog_competencies[0]) if catalog_competencies else 'próximo passo'),
+            )
+            base = {
+                'id': str(mission.id),
+                'titulo': mission.titulo,
+                'descricao': mission.descricao,
+                'area_relacionada': mission.area_relacionada,
+                'dificuldade': mission.dificuldade,
+                'duracao_estimada_minutos': mission.duracao_estimada_minutos,
+            }
+            personalized = personalizar_missao(
+                profile_id=str(perfil.id),
+                base_mission=base,
+                competency_gap=competency_gap,
+                objective_area=objective_area,
+                strong_competencies=strongest,
+                completed_mission_types=completed_types,
+            )
+            if personalized['origem_geracao'] != assignment.origem_geracao:
+                assignment.origem_geracao = personalized['origem_geracao']
+                assignment.save(update_fields=['origem_geracao', 'updated_at'])
+            missions.append({
+                'id': mission.id,
+                'titulo': personalized['titulo'],
+                'descricao': personalized['descricao'],
+                'area_relacionada': mission.area_relacionada,
+                'competencias_desenvolvidas': catalog_competencies,
+                'dificuldade': mission.dificuldade,
+                'duracao_estimada_minutos': personalized['estimativa_tempo'],
+                'prazo_dias': mission.prazo_dias,
+                'dias_uteis_estimados': mission.dias_uteis_estimados,
                 'prazo': assignment.prazo,
                 'prioridade': assignment.prioridade,
                 'motivo_recomendacao': assignment.motivo_recomendacao,
-            }
-            for assignment in assignments
-        ]
+                'competencia_alvo': personalized['competencia_alvo'],
+                'origem_geracao': personalized['origem_geracao'],
+                'gerada_por_ia': personalized['origem_geracao'] == 'regra+ia',
+            })
         return Response(
             MissionSuggestionSerializer(missions, many=True).data,
             status=status.HTTP_200_OK,

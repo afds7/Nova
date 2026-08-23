@@ -37,15 +37,29 @@ class DashboardFocusSerializer(serializers.Serializer):
     mensagem = serializers.CharField()
 
 
+class DashboardEvidenceDraftSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    titulo = serializers.CharField()
+    descricao = serializers.CharField(allow_blank=True)
+    tipo = serializers.CharField()
+    missao_relacionada = serializers.UUIDField(allow_null=True)
+
+
+class DashboardLastMissionSerializer(serializers.Serializer):
+    id = serializers.UUIDField()
+    titulo = serializers.CharField()
+    concluida_em = serializers.DateTimeField(allow_null=True)
+
+
 class DashboardSerializer(serializers.Serializer):
     student_id = serializers.UUIDField()
     student_name = serializers.CharField()
     student_email = serializers.EmailField()
     objective_id = serializers.UUIDField(allow_null=True)
     objective_area = serializers.CharField(allow_null=True)
-    iep_score = serializers.IntegerField()
-    iev_score = serializers.IntegerField()
-    iep_delta = serializers.IntegerField(allow_null=True)
+    iep_score = serializers.DecimalField(max_digits=5, decimal_places=2, coerce_to_string=False)
+    iev_score = serializers.DecimalField(max_digits=5, decimal_places=2, coerce_to_string=False)
+    iep_delta = serializers.DecimalField(max_digits=5, decimal_places=2, allow_null=True, coerce_to_string=False)
     diagnostic = serializers.CharField()
     assessment_date = serializers.DateTimeField(allow_null=True)
     competency_scores = DashboardCompetencySerializer(many=True)
@@ -56,6 +70,8 @@ class DashboardSerializer(serializers.Serializer):
     experience_count = serializers.IntegerField()
     next_focus = DashboardFocusSerializer(allow_null=True)
     last_updated = serializers.DateTimeField()
+    ultima_missao_concluida = DashboardLastMissionSerializer(allow_null=True)
+    rascunho_evidencia_pendente = DashboardEvidenceDraftSerializer(allow_null=True)
 
 
 class MissionSuggestionSerializer(serializers.Serializer):
@@ -71,3 +87,6 @@ class MissionSuggestionSerializer(serializers.Serializer):
     prazo = serializers.DateField(allow_null=True)
     prioridade = serializers.IntegerField()
     motivo_recomendacao = serializers.CharField()
+    competencia_alvo = serializers.CharField()
+    origem_geracao = serializers.ChoiceField(choices=['regra', 'regra+ia'])
+    gerada_por_ia = serializers.BooleanField()

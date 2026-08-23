@@ -8,6 +8,14 @@ from uuid import uuid4
 
 from django.conf import settings
 
+ALLOWED_UPLOADS = {
+    'application/pdf': {'.pdf'},
+    'image/png': {'.png'},
+    'image/jpeg': {'.jpg', '.jpeg'},
+    'video/mp4': {'.mp4'},
+}
+MAX_UPLOAD_BYTES = 25 * 1024 * 1024
+
 
 class PresignedUpload(TypedDict):
     url: str
@@ -19,17 +27,25 @@ def create_presigned_upload(
     filename: str,
     content_type: str,
     *,
+    profile_id: str | None = None,
+    file_size: int | None = None,
     expires_in: int = 900,
     prefix: str = 'evidencias',
 ) -> PresignedUpload:
     """Gera uma URL PUT temporária; nenhum arquivo é salvo no servidor."""
-    if not filename or not content_type:
+    if not filename or content_type not in ALLOWED_UPLOADS:
         raise ValueError('filename e content_type são obrigatórios')
+    suffix = Path(filename).suffix.lower()
+    if suffix not in ALLOWED_UPLOADS[content_type]:
+        raise ValueError('tipo de arquivo não permitido')
+    if file_size is None or file_size < 1 or file_size > MAX_UPLOAD_BYTES:
+        raise ValueError('o arquivo deve ter entre 1 byte e 25 MB')
     if not 60 <= expires_in <= 3600:
         raise ValueError('expires_in deve estar entre 60 e 3600 segundos')
 
-    suffix = Path(filename).suffix.lower()[:20]
-    object_key = f'{prefix.strip("/")}/{uuid4()}{suffix}'
+    safe_prefix = prefix.strip('/')
+    owner_prefix = f'{safe_prefix}/{profile_id}' if profile_id else safe_prefix
+    object_key = f'{owner_prefix}/{uuid4()}{suffix}'
 
     client = _s3_client()
     url = client.generate_presigned_url(
@@ -42,7 +58,11 @@ def create_presigned_upload(
         ExpiresIn=expires_in,
         HttpMethod='PUT',
     )
-    return {'url': url, 'object_key': object_key, 'expires_in': expires_in}
+    return {
+        'url': url,
+        'object_key': object_key,
+        'expires_in': expires_in,
+    }
 
 
 def _s3_client():

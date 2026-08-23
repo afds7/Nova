@@ -5,6 +5,8 @@ import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDashboardStore, CompetencyScore } from '../../store/useDashboardStore';
+import PortfolioUpload from '../../components/PortfolioUpload';
+import { useMissionFlowStore } from '../../store/useMissionFlowStore';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
 
@@ -72,6 +74,7 @@ function SkeletonCard({ h = 'h-28' }: { h?: string }) {
 export function DashboardPage() {
   const { data: session, status } = useSession();
   const router = useRouter();
+  const { concludeMission, isSubmitting: isCompletingMission, error: missionError } = useMissionFlowStore();
   const { data, suggestedMissions, isLoading, error, fetchDashboard } = useDashboardStore();
   const userId = (session?.user as { id?: string } | undefined)?.id;
 
@@ -124,13 +127,24 @@ export function DashboardPage() {
     ? Math.round((data.mission_stats.concluidas / data.mission_stats.total) * 100)
     : 0;
 
+  const completeMission = async (missionId: string) => {
+    if (!userId || isCompletingMission) return;
+    try {
+      const draft = await concludeMission(userId, missionId);
+      await fetchDashboard(userId);
+      router.push(`/portfolio/revisar?id=${draft.id}`);
+    } catch {
+      // O estado de erro do store permanece visível no bloco de missões.
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#f1f5f9] pb-10">
 
       {/* ── Header ──────────────────────────────────────────────────── */}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-5 md:px-8 lg:px-10 py-4 flex items-center justify-between">
-          <img src="/logo-nova.png" alt="NOVA Hub" height={36} className="h-9 object-contain" />
+          <img src="/logo-nova.png" alt="NOVA Hub" height={72} className="h-16 w-auto object-contain md:h-20" />
           <div className="flex items-center gap-3">
             <div className="text-right">
               <p className="text-sm font-bold text-slate-800 leading-none">{firstName}</p>
@@ -169,6 +183,7 @@ export function DashboardPage() {
               <div className="mt-1.5">
                 <IEPDelta delta={data.iep_delta} />
               </div>
+              <p className="mt-2 max-w-[15rem] text-[11px] leading-relaxed text-slate-500">Leitura atual com base nas últimas ações registradas.</p>
             </div>
             <div className="text-right">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Seu diferencial</p>
@@ -302,6 +317,9 @@ export function DashboardPage() {
                           <p className="text-xs text-slate-400">Prazo: {new Date(m.prazo).toLocaleDateString('pt-BR')}</p>
                         )}
                       </div>
+                      <button type="button" onClick={() => completeMission(m.id)} disabled={isCompletingMission} className="shrink-0 rounded-lg bg-blue-50 px-2.5 py-1.5 text-[10px] font-bold text-[#2c9be3] hover:bg-blue-100 disabled:opacity-50">
+                        Concluir
+                      </button>
                     </div>
                   ))}
                 </div>
@@ -345,7 +363,7 @@ export function DashboardPage() {
                     <p className="mt-2 text-xs leading-relaxed text-slate-500">{mission.descricao}</p>
                   )}
                   <p className="mt-2 text-xs font-medium leading-relaxed text-[#2c9be3]">
-                    {mission.motivo_recomendacao}
+                    Uma missão que pode ajudar por aqui: {mission.motivo_recomendacao}
                   </p>
                   <div className="mt-3 flex flex-wrap gap-2 text-[10px] font-semibold text-slate-500">
                     <span className="rounded-full bg-white px-2 py-1">
@@ -356,6 +374,9 @@ export function DashboardPage() {
                     </span>
                   </div>
                   <div className="mt-3 flex flex-wrap gap-1.5">
+                    <span className="rounded-full bg-blue-50 px-2 py-1 text-[10px] font-semibold text-[#2c9be3]">
+                      Foco: {mission.competencia_alvo}
+                    </span>
                     {mission.area_relacionada && (
                       <span className="rounded-full bg-white px-2 py-1 text-[10px] font-semibold text-[#2c9be3]">
                         {mission.area_relacionada}
@@ -367,6 +388,9 @@ export function DashboardPage() {
                       </span>
                     ))}
                   </div>
+                  <button type="button" onClick={() => completeMission(mission.id)} disabled={isCompletingMission} className="mt-4 w-full rounded-lg bg-[#2c9be3] px-3 py-2 text-xs font-bold text-white hover:bg-[#2188ca] disabled:opacity-50">
+                    {isCompletingMission ? 'Registrando...' : 'Marcar como concluída'}
+                  </button>
                 </article>
               ))}
             </div>
@@ -416,6 +440,20 @@ export function DashboardPage() {
             </div>
           ))}
         </motion.div>
+
+        {missionError && <div className="md:col-span-2 rounded-xl bg-rose-50 px-4 py-3 text-sm text-rose-700">{missionError}</div>}
+
+        {data.rascunho_evidencia_pendente && (
+          <div className="md:col-span-2 flex flex-col gap-3 rounded-xl border border-blue-100 bg-blue-50 px-4 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#2c9be3]">Próximo registro</p>
+              <p className="mt-1 text-sm text-slate-700">Seu rascunho <strong>{data.rascunho_evidencia_pendente.titulo}</strong> está esperando sua revisão.</p>
+            </div>
+            <button type="button" onClick={() => router.push(`/portfolio/revisar?id=${data.rascunho_evidencia_pendente?.id}`)} className="shrink-0 rounded-lg bg-[#2c9be3] px-4 py-2.5 text-xs font-bold text-white hover:bg-[#2188ca]">Revisar rascunho</button>
+          </div>
+        )}
+
+        <PortfolioUpload />
 
         {/* ── Refazer Diagnóstico ───────────────────────────────────── */}
         <motion.div

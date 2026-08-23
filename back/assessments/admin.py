@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import (
     Assessment, PerfilAluno, Objetivo,
     Competencia, HistoricoIEP, Missao, MissaoAluno, ItemPortfolio,
-    Portfolio, Evidencia
+    Portfolio, Evidencia, EvidenciaPortfolio
 )
 
 
@@ -78,3 +78,11 @@ class EvidenciaAdmin(admin.ModelAdmin):
     list_display = ('titulo', 'portfolio', 'tipo_arquivo', 'missao_aluno', 'created_at')
     search_fields = ('titulo', 'portfolio__titulo', 'tipo_arquivo')
     readonly_fields = ('id', 'created_at', 'updated_at')
+
+
+@admin.register(EvidenciaPortfolio)
+class EvidenciaPortfolioAdmin(admin.ModelAdmin):
+    list_display = ('titulo', 'perfil', 'tipo', 'origem', 'ativo', 'criado_em')
+    list_filter = ('tipo', 'origem', 'ativo')
+    search_fields = ('titulo', 'perfil__nome', 'arquivo_chave')
+    readonly_fields = ('id', 'criado_em')
