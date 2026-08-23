@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import ReactMarkdown from 'react-markdown';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useSession, signIn } from 'next-auth/react';
@@ -78,9 +78,11 @@ export default function Quiz() {
   const [submitError, setSubmitError]   = useState('');
   const [authModalOpen, setAuthModalOpen] = useState(false);
 
+  const scores = useMemo(() => calculateScores(answers), [answers]);
+
   // Sugestão de área baseada no pilar mais forte
   const suggestedArea = answers && Object.keys(answers).length > 0
-    ? PILLAR_TO_AREA[calculateScores(answers).strongest] ?? ''
+    ? PILLAR_TO_AREA[scores.strongest] ?? ''
     : '';
 
   // Preenche nome e email automaticamente após login (modal de autenticação)
@@ -113,7 +115,7 @@ export default function Quiz() {
       setIsSubmitting(true);
       setLeadInfo({ name: localName, email: localEmail, area: localArea });
 
-      const { iep, iev, strongest, weakest, gap } = calculateScores(answers);
+      const { iep, iev, strongest, weakest, gap } = scores;
       const { mainDiagnostic } = getDiagnostics(iep, iev);
       try {
         const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
@@ -270,7 +272,7 @@ export default function Quiz() {
                       ✨ Sugestão automática
                     </span>
                     <span className="min-w-0 text-xs leading-snug text-slate-400">
-                      pilar: <strong className="break-words text-slate-600">{calculateScores(answers).strongest}</strong>
+                      pilar: <strong className="break-words text-slate-600">{scores.strongest}</strong>
                     </span>
                   </motion.div>
                 )}
@@ -321,7 +323,7 @@ export default function Quiz() {
   // TELA FINAL: Dashboard de Resultados
   // ─────────────────────────────────────────────
   if (currentStep > QUESTIONS.length + 1) {
-    const { iep, iev } = calculateScores(answers);
+    const { iep, iev } = scores;
     const { mainDiagnostic, copyMessage, themeClasses } = getDiagnostics(iep, iev);
 
     return (
