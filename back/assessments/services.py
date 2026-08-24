@@ -1,5 +1,7 @@
 import os
 import logging
+import hashlib
+import json
 import unicodedata
 from datetime import timedelta
 from uuid import UUID
@@ -9,6 +11,7 @@ from django.db.models import QuerySet
 from django.utils import timezone
 from openai import OpenAI
 from tavily import TavilyClient
+from django.core.cache import cache
 from .models import Missao, MissaoAluno, PerfilAluno
 
 # Recomendação de segurança para substituir o print()
@@ -166,7 +169,24 @@ def build_marketing_copy(iep, iev, area, fraqueza, forca, gap):
 
 
 def generate_action_plan(data):
-    openai_client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
+    cache_input = {
+        key: data.get(key)
+        for key in ('area', 'iep_score', 'iev_score', 'diagnostic', 'strongest_point', 'weakest_point', 'gap')
+    }
+    cache_digest = hashlib.sha256(
+        json.dumps(cache_input, ensure_ascii=False, sort_keys=True, default=str).encode('utf-8')
+    ).hexdigest()
+    cache_key = f'nova:assessment:plan:v1:{cache_digest}'
+    cached_plan = cache.get(cache_key)
+    if cached_plan:
+        logger.info('[CACHE] Plano de diagnóstico reutilizado | chave=%s', cache_digest[:12])
+        return cached_plan
+
+    openai_client = OpenAI(
+        api_key=os.getenv("OPENAI_API_KEY"),
+        timeout=float(os.getenv('OPENAI_ASSESSMENT_TIMEOUT_SECONDS', '8')),
+        max_retries=0,
+    )
     tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
 
     raw_area = data.get('area', '').strip().lower()
@@ -292,8 +312,11 @@ def generate_action_plan(data):
             f"Custo USD: ${total_cost_usd:.6f}"
         )
 
-        return f"{marketing_copy}\n\n---\n\n{ai_plan}"
+        final_plan = f"{marketing_copy}\n\n---\n\n{ai_plan}"
+        cache.set(cache_key, final_plan, 15 * 60)
+        return final_plan
 
     except Exception as e:
         logger.error(f"Erro na geração do plano de ação (OpenAI): {e}", exc_info=True)
+        cache.set(cache_key, marketing_copy, 60)
         return marketing_copy

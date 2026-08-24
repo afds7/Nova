@@ -136,7 +136,8 @@ export default function Quiz() {
               redirect: false,
             });
             if (!signInRes?.ok) {
-              setSubmitError('Seu diagnóstico foi salvo, mas não foi possível entrar automaticamente. Confira seus dados e tente novamente.');
+              setSubmitError('Seu diagnóstico foi salvo. Entre na sua conta para continuar.');
+              setAuthModalOpen(true);
               return;
             }
           }
@@ -197,7 +198,10 @@ export default function Quiz() {
             <AuthModal
               isOpen={authModalOpen}
               onClose={() => setAuthModalOpen(false)}
-              onSuccess={() => setAuthModalOpen(false)}
+              onSuccess={() => {
+                setAuthModalOpen(false);
+                nextStep();
+              }}
             />
 
             <form onSubmit={handleLeadSubmit} className="space-y-4">

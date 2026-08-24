@@ -121,6 +121,24 @@ STORAGES = {
     },
 }
 
+# Redis é recomendado em produção para compartilhar cache entre workers.
+# O fallback local mantém o desenvolvimento funcional sem serviço adicional.
+REDIS_URL = os.getenv('REDIS_URL', '').strip()
+if REDIS_URL:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': REDIS_URL,
+        }
+    }
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+            'LOCATION': 'nova-local-cache',
+        }
+    }
+
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ==========================================

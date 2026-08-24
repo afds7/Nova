@@ -7,6 +7,9 @@ from .models import EvidenciaPortfolio, MissaoAluno
 from .serializers import DashboardSerializer, MissionSuggestionSerializer
 from .services import MotorDeMissoes
 from diagnostico.services.missoes_ia import personalizar_missao
+from .profile_utils import parse_profile_id
+from .cache_utils import dashboard_cache_key, missions_cache_key
+from django.core.cache import cache
 
 logger = logging.getLogger('assessments')
 
@@ -44,11 +47,11 @@ class DashboardView(APIView):
             if request.user.is_authenticated:
                 perfil = perfil_query.get(user=request.user)
             else:
-                profile_id = request.query_params.get('profile_id', '').strip()
-                if not profile_id:
+                try:
+                    profile_id = parse_profile_id(request.query_params.get('profile_id'))
+                except ValueError as error:
                     return Response(
-                        {'error': 'profile_id é obrigatório quando não há usuário autenticado'},
-                        status=status.HTTP_400_BAD_REQUEST
+                        {'error': str(error)}, status=status.HTTP_400_BAD_REQUEST
                     )
                 perfil = perfil_query.get(id=profile_id)
         except PerfilAluno.DoesNotExist:
@@ -56,6 +59,10 @@ class DashboardView(APIView):
                 {'error': 'Perfil não encontrado'},
                 status=status.HTTP_404_NOT_FOUND
             )
+
+        cached_dashboard = cache.get(dashboard_cache_key(str(perfil.id)))
+        if cached_dashboard:
+            return Response(cached_dashboard, status=status.HTTP_200_OK)
 
         # ── Objetivo ─────────────────────────────────────────────────────
         objetivo = getattr(perfil, 'objetivo', None)
@@ -196,32 +203,38 @@ class DashboardView(APIView):
                 'missao_relacionada': str(rascunho.missao_relacionada_id) if rascunho.missao_relacionada_id else None,
             } if rascunho else None,
         }
-        return Response(DashboardSerializer(payload).data, status=status.HTTP_200_OK)
+        serialized_payload = DashboardSerializer(payload).data
+        cache.set(dashboard_cache_key(str(perfil.id)), serialized_payload, 30)
+        return Response(serialized_payload, status=status.HTTP_200_OK)
 
 
 class MissionSuggestionsView(APIView):
     """Retorna as três missões mais relevantes para um perfil de aluno."""
 
     def get(self, request):
-        profile_id = request.query_params.get('profile_id', '').strip()
+        profile_id = request.query_params.get('profile_id')
 
         try:
             if request.user.is_authenticated:
                 perfil = PerfilAluno.objects.get(user=request.user)
             elif profile_id:
-                perfil = PerfilAluno.objects.get(pk=profile_id)
+                perfil = PerfilAluno.objects.get(pk=parse_profile_id(profile_id))
             else:
-                return Response(
-                    {'error': 'profile_id é obrigatório quando não há usuário autenticado'},
-                    status=status.HTTP_400_BAD_REQUEST,
-                )
-        except (PerfilAluno.DoesNotExist, ValueError):
+                raise ValueError('profile_id é obrigatório')
+        except ValueError as error:
+            return Response(
+                {'error': str(error)}, status=status.HTTP_400_BAD_REQUEST
+            )
+        except PerfilAluno.DoesNotExist:
             return Response(
                 {'error': 'Perfil não encontrado'},
                 status=status.HTTP_404_NOT_FOUND,
             )
 
         assignments = MotorDeMissoes.recomendar(perfil.id)
+        cached_missions = cache.get(missions_cache_key(str(perfil.id)))
+        if cached_missions:
+            return Response(cached_missions, status=status.HTTP_200_OK)
         competency_levels = {item.nome: item.nivel for item in perfil.competencias.all()}
         strongest = [name for name, level in competency_levels.items() if level >= 4]
         priority = min(competency_levels.items(), key=lambda item: item[1], default=(None, None))[0]
@@ -276,7 +289,6 @@ class MissionSuggestionsView(APIView):
                 'origem_geracao': personalized['origem_geracao'],
                 'gerada_por_ia': personalized['origem_geracao'] == 'regra+ia',
             })
-        return Response(
-            MissionSuggestionSerializer(missions, many=True).data,
-            status=status.HTTP_200_OK,
-        )
+        serialized_missions = MissionSuggestionSerializer(missions, many=True).data
+        cache.set(missions_cache_key(str(perfil.id)), serialized_missions, 5 * 60)
+        return Response(serialized_missions, status=status.HTTP_200_OK)

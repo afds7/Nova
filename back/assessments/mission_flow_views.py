@@ -11,6 +11,7 @@ from .mission_flow import conclude_mission
 from .mission_flow_serializers import EvidencePublishSerializer, MissionCompletionSerializer
 from .models import EvidenciaPortfolio, MissaoAluno, PerfilAluno
 from .portfolio_serializers import EvidenciaPortfolioSerializer
+from .cache_utils import invalidate_profile_cache
 
 
 def _profile(request, profile_id: str | None = None) -> PerfilAluno:
@@ -67,4 +68,5 @@ class EvidencePublishView(APIView):
         serializer = EvidencePublishSerializer(evidence, data=request.data, partial=True)
         serializer.is_valid(raise_exception=True)
         published = serializer.save(ativo=True)
+        invalidate_profile_cache(str(profile.id))
         return Response(EvidenciaPortfolioSerializer(published).data, status=status.HTTP_200_OK)

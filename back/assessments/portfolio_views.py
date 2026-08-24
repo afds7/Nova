@@ -15,14 +15,13 @@ from .portfolio_serializers import (
     UploadStartSerializer,
 )
 from .storage_utils import create_presigned_upload
+from .profile_utils import parse_profile_id
 
 
 def profile_for_request(request, profile_id: str | None = None) -> PerfilAluno:
     if request.user.is_authenticated:
         return get_object_or_404(PerfilAluno, user=request.user)
-    if not profile_id:
-        raise ValueError('profile_id é obrigatório')
-    return get_object_or_404(PerfilAluno, id=profile_id)
+    return get_object_or_404(PerfilAluno, id=parse_profile_id(profile_id))
 
 
 class PortfolioUploadStartView(APIView):

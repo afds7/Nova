@@ -9,6 +9,7 @@ from django.db import transaction
 from django.utils import timezone
 
 from .models import Competencia, EvidenciaPortfolio, HistoricoIEP, MissaoAluno, PerfilAluno
+from .cache_utils import invalidate_profile_cache
 
 MAX_IEP_SCORE = Decimal('96')
 SLOW_PROGRESSION_FROM = Decimal('83')
@@ -116,4 +117,5 @@ def conclude_mission(*, profile: PerfilAluno, mission_id: str) -> tuple[MissaoAl
             'ativo': False,
         },
     )
+    invalidate_profile_cache(str(profile.id))
     return assignment, draft, history, already_completed

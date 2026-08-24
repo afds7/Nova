@@ -5,6 +5,8 @@ from rest_framework.views import APIView
 from .models import Assessment, PerfilAluno, HistoricoIEP, Objetivo, Competencia
 from .serializers import AssessmentSerializer
 from .services import generate_action_plan
+from django.core.cache import cache
+from .cache_utils import assessment_cache_key, invalidate_profile_cache
 
 
 class AssessmentCreateView(generics.CreateAPIView):
@@ -43,6 +45,7 @@ class AssessmentCreateView(generics.CreateAPIView):
 
             perfil = PerfilAluno.objects.filter(user__email=email).first()
             if perfil:
+                invalidate_profile_cache(str(perfil.id))
                 # Criar histórico do IEP
                 HistoricoIEP.objects.create(
                     perfil=perfil,
@@ -80,6 +83,7 @@ class AssessmentCreateView(generics.CreateAPIView):
                         nome=pilar,
                         defaults={'nivel': nivel}
                     )
+            cache.delete(assessment_cache_key(email))
 
         # 5. Devolve o plano de ação junto com a resposta para o frontend
         headers = self.get_success_headers(serializer.data)
@@ -102,11 +106,15 @@ class LastAssessmentView(APIView):
         if not email:
             return Response({"error": "E-mail é obrigatório"}, status=status.HTTP_400_BAD_REQUEST)
 
+        cached = cache.get(assessment_cache_key(email))
+        if cached:
+            return Response(cached, status=status.HTTP_200_OK)
+
         assessment = Assessment.objects.filter(email=email).first()
         if not assessment:
             return Response(None, status=status.HTTP_404_NOT_FOUND)
 
-        return Response({
+        payload = {
             "id":              str(assessment.id),
             "name":            assessment.name,
             "email":           assessment.email,
@@ -118,4 +126,6 @@ class LastAssessmentView(APIView):
             "weakest_point":   assessment.weakest_point,
             "gap":             assessment.gap,
             "action_plan":     assessment.action_plan,
-        }, status=status.HTTP_200_OK)
+        }
+        cache.set(assessment_cache_key(email), payload, 60)
+        return Response(payload, status=status.HTTP_200_OK)
