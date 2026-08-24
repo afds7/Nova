@@ -1,7 +1,8 @@
 import NextAuth from "next-auth";
 import CredentialsProvider from "next-auth/providers/credentials";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+const NEXTAUTH_SECRET = process.env.NEXTAUTH_SECRET || process.env.AUTH_SECRET;
 
 const handler = NextAuth({
   providers: [
@@ -15,6 +16,9 @@ const handler = NextAuth({
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
+        if (!API_URL) {
+          throw new Error('NEXT_PUBLIC_API_URL não está configurada no ambiente de produção.');
+        }
 
         const isRegister = credentials.mode === "register";
         const endpoint = isRegister ? "/api/auth/register/" : "/api/auth/login/";
@@ -70,7 +74,7 @@ const handler = NextAuth({
     },
   },
 
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: NEXTAUTH_SECRET,
   session: { strategy: "jwt" },
   pages: {
     signIn: "/",

@@ -147,7 +147,14 @@ export default function Quiz() {
 
         const errorText = await response.text();
         console.error('Erro ao guardar a lead:', errorText);
-        setSubmitError('Não foi possível salvar seu diagnóstico. Tente novamente.');
+        let message = 'Não foi possível salvar seu diagnóstico. Tente novamente.';
+        try {
+          const errorData = JSON.parse(errorText) as { detail?: string; error?: string };
+          if (errorData.detail || errorData.error) message = errorData.detail || errorData.error || message;
+        } catch {
+          // Mantém uma mensagem amigável quando o servidor não retorna JSON.
+        }
+        setSubmitError(message);
       } catch (err) {
         console.error('Erro de rede:', err);
         setSubmitError('Não foi possível conectar ao servidor. Verifique se o backend está rodando e tente novamente.');
