@@ -23,6 +23,25 @@ class PresignedUpload(TypedDict):
     expires_in: int
 
 
+def create_presigned_download(object_key: str, *, expires_in: int = 900) -> str:
+    """Gera uma URL GET temporária para visualizar um objeto já enviado."""
+    if not object_key or object_key.startswith('/') or '..' in object_key:
+        raise ValueError('chave de arquivo inválida')
+    if not 60 <= expires_in <= 3600:
+        raise ValueError('expires_in deve estar entre 60 e 3600 segundos')
+
+    client = _s3_client()
+    return client.generate_presigned_url(
+        ClientMethod='get_object',
+        Params={
+            'Bucket': settings.AWS_STORAGE_BUCKET_NAME,
+            'Key': object_key,
+        },
+        ExpiresIn=expires_in,
+        HttpMethod='GET',
+    )
+
+
 def create_presigned_upload(
     filename: str,
     content_type: str,
@@ -66,7 +85,23 @@ def create_presigned_upload(
 
 
 def _s3_client():
-    import boto3
+    try:
+        import boto3
+    except ImportError as error:
+        raise RuntimeError(
+            'O storage de arquivos não está disponível neste ambiente. Instale as dependências do backend.'
+        ) from error
+
+    required = {
+        'AWS_STORAGE_BUCKET_NAME': settings.AWS_STORAGE_BUCKET_NAME,
+        'AWS_ACCESS_KEY_ID': settings.AWS_ACCESS_KEY_ID,
+        'AWS_SECRET_ACCESS_KEY': settings.AWS_SECRET_ACCESS_KEY,
+        'AWS_S3_ENDPOINT_URL': settings.AWS_S3_ENDPOINT_URL,
+    }
+    if any(not value or str(value).startswith('replace-with-') for value in required.values()):
+        raise RuntimeError(
+            'O storage de arquivos ainda não foi configurado. Verifique as variáveis AWS/R2 do ambiente.'
+        )
 
     return boto3.client(
         's3',

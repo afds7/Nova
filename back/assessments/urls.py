@@ -4,6 +4,7 @@ from .auth_views import RegisterView, EmailLoginView
 from .dashboard_views import DashboardView, MissionSuggestionsView
 from .portfolio_views import (
     EvidenciaPortfolioDetailView,
+    EvidenciaPortfolioFileView,
     EvidenciaPortfolioListCreateView,
     PortfolioUploadStartView,
 )
@@ -18,6 +19,7 @@ urlpatterns = [
     path('portfolio/evidencias/<uuid:evidence_id>/publicar/', EvidencePublishView.as_view(), name='portfolio-evidence-publish'),
     path('portfolio/upload/iniciar/', PortfolioUploadStartView.as_view(), name='portfolio-upload-start'),
     path('portfolio/evidencias/', EvidenciaPortfolioListCreateView.as_view(), name='portfolio-evidencias'),
+    path('portfolio/evidencias/<uuid:evidence_id>/arquivo/', EvidenciaPortfolioFileView.as_view(), name='portfolio-evidence-file'),
     path('portfolio/evidencias/<uuid:evidence_id>/', EvidenciaPortfolioDetailView.as_view(), name='portfolio-evidence-detail'),
     path('auth/register/', RegisterView.as_view(), name='auth_register'),
     path('auth/login/', EmailLoginView.as_view(), name='auth_login'),

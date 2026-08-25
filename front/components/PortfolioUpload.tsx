@@ -121,6 +121,11 @@ export default function PortfolioUpload() {
             {visibleEvidence.map((item) => (
               <article key={item.id} className="min-w-0 rounded-xl border border-slate-100 p-4">
                 <div className="flex items-start justify-between gap-2"><span className="rounded-full bg-blue-50 px-2 py-1 text-[10px] font-bold text-[#2c9be3]">{typeLabels[item.tipo]}</span><button type="button" title="Arquivar evidência" onClick={() => profileId && inativarEvidencia(profileId, item.id)} className="text-xs font-semibold text-slate-400 hover:text-rose-500">Arquivar</button></div>
+                {item.tipo === 'imagem' && item.arquivo_url && (
+                  <a href={item.arquivo_url} target="_blank" rel="noreferrer" className="mt-3 block overflow-hidden rounded-lg bg-slate-50" aria-label={`Visualizar ${item.titulo}`}>
+                    <img src={item.arquivo_url} alt={item.titulo} className="h-36 w-full object-cover transition hover:scale-[1.02]" />
+                  </a>
+                )}
                 <h3 className="mt-3 truncate text-sm font-bold text-slate-800">{item.titulo}</h3>
                 {item.descricao && <p className="mt-1 line-clamp-2 text-xs leading-relaxed text-slate-500">{item.descricao}</p>}
                 {item.arquivo_url && <a href={item.arquivo_url} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs font-bold text-[#2c9be3] hover:underline">Abrir arquivo ↗</a>}

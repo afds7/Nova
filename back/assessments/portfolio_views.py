@@ -3,7 +3,8 @@ from __future__ import annotations
 from uuid import UUID
 
 from django.conf import settings
-from django.shortcuts import get_object_or_404
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -14,7 +15,7 @@ from .portfolio_serializers import (
     EvidenciaPortfolioSerializer,
     UploadStartSerializer,
 )
-from .storage_utils import create_presigned_upload
+from .storage_utils import create_presigned_download, create_presigned_upload
 from .profile_utils import parse_profile_id
 
 
@@ -22,6 +23,24 @@ def profile_for_request(request, profile_id: str | None = None) -> PerfilAluno:
     if request.user.is_authenticated:
         return get_object_or_404(PerfilAluno, user=request.user)
     return get_object_or_404(PerfilAluno, id=parse_profile_id(profile_id))
+
+
+def evidence_file_url(request, evidence: EvidenciaPortfolio, profile: PerfilAluno) -> str:
+    """Retorna URL pública configurada ou uma rota protegida de visualização."""
+    public_base = getattr(settings, 'AWS_S3_PUBLIC_BASE_URL', '')
+    if public_base and evidence.arquivo_chave:
+        return f'{public_base.rstrip("/")}/{evidence.arquivo_chave}'
+    return request.build_absolute_uri(
+        f'{reverse("portfolio-evidence-file", kwargs={"evidence_id": evidence.id})}'
+        f'?profile_id={profile.id}'
+    )
+
+
+def serialized_evidence(request, evidence: EvidenciaPortfolio, profile: PerfilAluno) -> dict:
+    data = EvidenciaPortfolioSerializer(evidence).data
+    if evidence.arquivo_chave:
+        data['arquivo_url'] = evidence_file_url(request, evidence, profile)
+    return data
 
 
 class PortfolioUploadStartView(APIView):
@@ -40,6 +59,10 @@ class PortfolioUploadStartView(APIView):
             )
         except ValueError as error:
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+        except RuntimeError as error:
+            return Response(
+                {'error': str(error)}, status=status.HTTP_503_SERVICE_UNAVAILABLE
+            )
 
         public_base = getattr(settings, 'AWS_S3_PUBLIC_BASE_URL', '')
         arquivo_url = f"{public_base}/{upload['object_key']}" if public_base else ''
@@ -62,7 +85,7 @@ class EvidenciaPortfolioListCreateView(APIView):
         except ValueError as error:
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
         evidencias = EvidenciaPortfolio.objects.filter(perfil=perfil, ativo=True)
-        return Response(EvidenciaPortfolioSerializer(evidencias, many=True).data)
+        return Response([serialized_evidence(request, item, perfil) for item in evidencias])
 
     def post(self, request):
         serializer = EvidenceConfirmSerializer(data=request.data)
@@ -101,9 +124,35 @@ class EvidenciaPortfolioListCreateView(APIView):
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(
-            EvidenciaPortfolioSerializer(evidence).data,
+            serialized_evidence(request, evidence, perfil),
             status=status.HTTP_201_CREATED,
         )
+
+
+class EvidenciaPortfolioFileView(APIView):
+    """Redireciona para uma URL GET temporária sem expor o bucket."""
+
+    def get(self, request, evidence_id: UUID):
+        try:
+            perfil = profile_for_request(request, request.query_params.get('profile_id'))
+        except ValueError as error:
+            return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
+        evidence = get_object_or_404(
+            EvidenciaPortfolio,
+            id=evidence_id,
+            perfil=perfil,
+            ativo=True,
+        )
+        if not evidence.arquivo_chave:
+            return Response(
+                {'error': 'esta evidência não possui um arquivo'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        try:
+            url = create_presigned_download(evidence.arquivo_chave)
+        except (RuntimeError, ValueError) as error:
+            return Response({'error': str(error)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        return redirect(url)
 
 
 class EvidenciaPortfolioDetailView(APIView):
@@ -113,7 +162,7 @@ class EvidenciaPortfolioDetailView(APIView):
         except ValueError as error:
             return Response({'error': str(error)}, status=status.HTTP_400_BAD_REQUEST)
         evidence = get_object_or_404(EvidenciaPortfolio, id=evidence_id, perfil=perfil)
-        return Response(EvidenciaPortfolioSerializer(evidence).data)
+        return Response(serialized_evidence(request, evidence, perfil))
 
     def patch(self, request, evidence_id: UUID):
         try:
