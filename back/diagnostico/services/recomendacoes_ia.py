@@ -151,8 +151,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                     }, ensure_ascii=False),
                 },
             ],
-            temperature=0.4,
-            max_tokens=1400,
+            max_completion_tokens=1400,
         )
         parsed = json.loads(response.choices[0].message.content or '{}')
         raw_steps = parsed.get('proximos_passos', fallback['proximos_passos'])

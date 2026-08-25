@@ -124,8 +124,7 @@ def _personalizar_missao_uncached(
         response = client.chat.completions.create(
             model=os.getenv('OPENAI_MODEL', 'gpt-5.6-luna'),
             response_format={'type': 'json_object'},
-            temperature=0.5,
-            max_tokens=300,
+            max_completion_tokens=300,
             messages=[
                 {
                     'role': 'system',

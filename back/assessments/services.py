@@ -284,8 +284,7 @@ def generate_action_plan(data):
                 },
                 {"role": "user", "content": prompt}
             ],
-            temperature=0.6,
-            max_tokens=850
+            max_completion_tokens=850
         )
 
         # 1. Tratamento da resposta da IA
