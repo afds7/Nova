@@ -277,7 +277,7 @@ def generate_action_plan(data):
 
     try:
         response = openai_client.chat.completions.create(
-            model="gpt-4o-mini",
+            model=os.getenv('OPENAI_MODEL', 'gpt-5.6-luna'),
             messages=[
                 {
                     "role": "system",
@@ -299,7 +299,7 @@ def generate_action_plan(data):
         completion_tokens = usage.completion_tokens
         total_tokens = usage.total_tokens
 
-        # 3. Cálculo de Custo (gpt-4o-mini)
+        # 3. Métricas de uso do modelo configurado
         cost_input = (prompt_tokens / 1_000_000) * 0.15
         cost_output = (completion_tokens / 1_000_000) * 0.60
         total_cost_usd = cost_input + cost_output

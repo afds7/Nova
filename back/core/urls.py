@@ -9,6 +9,7 @@ from assessments.portfolio_views import (
 )
 from assessments.mission_flow_views import EvidencePublishView, MissionCompleteView
 from assessments.dashboard_views import MissionSuggestionsView
+from assessments.recommendation_views import RecommendationsView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -20,6 +21,7 @@ urlpatterns = [
     path('api/portfolio/evidencias/<uuid:evidence_id>/', EvidenciaPortfolioDetailView.as_view(), name='portfolio-evidence-detail-public'),
     path('api/missoes/<uuid:mission_id>/concluir/', MissionCompleteView.as_view(), name='mission-complete-public'),
     path('api/missoes/sugeridas/', MissionSuggestionsView.as_view(), name='mission-suggestions-public'),
+    path('api/recomendacoes/', RecommendationsView.as_view(), name='recommendations-public'),
     path('api/portfolio/evidencias/<uuid:evidence_id>/publicar/', EvidencePublishView.as_view(), name='portfolio-evidence-publish-public'),
     # Endpoints de autenticação chamados pelo NextAuth
     path('api/auth/register/', RegisterView.as_view(), name='auth_register'),

@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { QUESTIONS } from '../constants/questions';
+import type { RecommendationsData } from './useRecommendationsStore';
 
 interface LeadInfo {
   name: string;
@@ -15,6 +16,7 @@ interface FullResult {
   iev_score: number;
   diagnostic: string;
   action_plan: string;
+  recommendations?: RecommendationsData | null;
 }
 
 interface QuizState {
@@ -22,6 +24,7 @@ interface QuizState {
   answers: Record<number, number>;
   leadInfo: LeadInfo;
   actionPlan: string;
+  recommendations: RecommendationsData | null;
   setAnswer: (questionId: number, value: number) => void;
   setLeadInfo: (info: LeadInfo) => void;
   nextStep: () => void;
@@ -53,17 +56,19 @@ export const useQuizStore = create<QuizState>((set) => ({
   })),
 
   // Inicia o quiz a partir da pergunta 1
-  startQuiz: () => set({ currentStep: 1, answers: {}, leadInfo: { name: '', email: '', area: '' }, actionPlan: '' }),
+  startQuiz: () => set({ currentStep: 1, answers: {}, leadInfo: { name: '', email: '', area: '' }, actionPlan: '', recommendations: null }),
 
   actionPlan: '',
+  recommendations: null,
   setActionPlan: (plan) => set({ actionPlan: plan }),
 
-  resetQuiz: () => set({ currentStep: 0, answers: {}, leadInfo: { name: '', email: '', area: '' }, actionPlan: '' }),
+  resetQuiz: () => set({ currentStep: 0, answers: {}, leadInfo: { name: '', email: '', area: '' }, actionPlan: '', recommendations: null }),
 
   // Carrega resultado anterior do backend e vai direto para a tela de resultados
   setFullResult: (result) => set({
     leadInfo: { name: result.name, email: result.email, area: result.area },
     actionPlan: result.action_plan || '',
+    recommendations: result.recommendations || null,
     currentStep: QUESTIONS.length + 2, // pula direto para a tela final
   }),
 }));

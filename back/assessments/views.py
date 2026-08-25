@@ -7,6 +7,7 @@ from .serializers import AssessmentSerializer
 from .services import generate_action_plan
 from django.core.cache import cache
 from .cache_utils import assessment_cache_key, invalidate_profile_cache
+from diagnostico.services.recomendacoes_ia import gerar_recomendacoes
 
 
 class AssessmentCreateView(generics.CreateAPIView):
@@ -23,6 +24,12 @@ class AssessmentCreateView(generics.CreateAPIView):
         data = serializer.validated_data
         password = data.pop('password', '') # Extrai a senha antes de salvar no modelo Assessment
         action_plan = generate_action_plan(data)
+        recommendations = gerar_recomendacoes({
+            'area': data.get('area', ''),
+            'prioridade': data.get('weakest_point', ''),
+            'pontos_fortes': [data.get('strongest_point', '')],
+            'nivel_iep': data.get('iep_score', 0),
+        })
 
         # 3. Salva no banco JÁ COM o plano de ação embutido
         assessment = serializer.save(action_plan=action_plan)
@@ -89,6 +96,7 @@ class AssessmentCreateView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         response_data = serializer.data
         response_data['action_plan'] = action_plan
+        response_data['recommendations'] = recommendations
 
         return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -126,6 +134,12 @@ class LastAssessmentView(APIView):
             "weakest_point":   assessment.weakest_point,
             "gap":             assessment.gap,
             "action_plan":     assessment.action_plan,
+            "recommendations": gerar_recomendacoes({
+                'area': assessment.area,
+                'prioridade': assessment.weakest_point,
+                'pontos_fortes': [assessment.strongest_point],
+                'nivel_iep': assessment.iep_score,
+            }),
         }
         cache.set(assessment_cache_key(email), payload, 60)
         return Response(payload, status=status.HTTP_200_OK)

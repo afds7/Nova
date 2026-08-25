@@ -148,6 +148,9 @@ export function DashboardPage() {
             <img src="/logo-nova.png" alt="NOVA Hub" width={650} height={366} className="absolute left-[-205px] top-[-128px] max-w-none" />
           </div>
           <div className="flex items-center gap-3">
+            <button type="button" onClick={() => router.push('/recomendacoes')} className="rounded-lg bg-blue-50 px-2.5 py-2 text-[11px] font-bold text-[#2c9be3] hover:bg-blue-100 sm:px-3 sm:text-xs">
+              Explorar
+            </button>
             <div className="text-right">
               <p className="text-sm font-bold text-slate-800 leading-none">{firstName}</p>
               <p className="text-xs text-slate-400 mt-0.5">{data.objective_area || 'Objetivo ainda não definido'}</p>
@@ -456,30 +459,6 @@ export function DashboardPage() {
         )}
 
         <PortfolioUpload />
-
-        {/* ── Refazer Diagnóstico ───────────────────────────────────── */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.35 }}
-          className="md:col-span-2"
-        >
-          <button
-            onClick={() => router.push('/')}
-            className="w-full py-3.5 flex items-center justify-center gap-2 text-sm font-bold text-[#2c9be3] border-2 border-[#2c9be3] rounded-2xl hover:bg-[#2c9be3] hover:text-white transition-all duration-200 cursor-pointer"
-          >
-            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
-            </svg>
-            Refazer meu diagnóstico
-          </button>
-          <p className="text-xs text-center text-slate-400 mt-2">
-            Atualizado em {new Date(data.last_updated).toLocaleDateString('pt-BR', {
-              day: '2-digit', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-            })}
-          </p>
-        </motion.div>
 
       </div>
     </main>

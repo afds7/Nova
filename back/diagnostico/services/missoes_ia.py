@@ -122,7 +122,7 @@ def _personalizar_missao_uncached(
             },
         }
         response = client.chat.completions.create(
-            model=os.getenv('OPENAI_MISSIONS_MODEL', 'gpt-4o-mini'),
+            model=os.getenv('OPENAI_MODEL', 'gpt-5.6-luna'),
             response_format={'type': 'json_object'},
             temperature=0.5,
             max_tokens=300,

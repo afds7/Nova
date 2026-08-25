@@ -9,6 +9,7 @@ import { QUESTIONS } from '../constants/questions';
 import { calculateScores, getDiagnostics } from '../utils/math';
 import { useRouter } from 'next/navigation';
 import AuthModal from './AuthModal';
+import type { RecommendationItem } from '../store/useRecommendationsStore';
 
 
 // Mapeamento: pilar mais forte do aluno → sugestão de áreas abrangentes
@@ -64,7 +65,7 @@ export default function Quiz() {
   const {
     currentStep, answers, leadInfo,
     setAnswer, setLeadInfo, nextStep, prevStep,
-    resetQuiz, actionPlan, setActionPlan,
+    resetQuiz, actionPlan, recommendations, setActionPlan,
   } = useQuizStore();
 
   const [localName, setLocalName]       = useState('');
@@ -127,6 +128,7 @@ export default function Quiz() {
         if (response.ok) {
           const data = await response.json(); 
           setActionPlan(data.action_plan); 
+          useQuizStore.setState({ recommendations: data.recommendations || null });
           
           if (!session?.user) {
             // Faz login automaticamente com a senha recém-criada
@@ -443,6 +445,40 @@ export default function Quiz() {
               ))}
             </div>
             <p className="text-sm text-slate-500 font-medium">Montando seus próximos passos com IA...</p>
+          </motion.div>
+        )}
+
+        {recommendations && (
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.46 }}
+            className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-md"
+          >
+            <div className="flex items-center justify-between gap-3 bg-slate-800 px-6 py-4 text-white">
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-200">Para explorar a partir daqui</p>
+                <h3 className="mt-1 text-base font-bold">Cursos, faculdades e materiais que podem combinar com seu perfil</h3>
+              </div>
+              <span className="hidden text-xl sm:block" aria-hidden="true">✦</span>
+            </div>
+            <div className="p-5 md:p-6">
+              <p className="text-sm leading-relaxed text-slate-600">{recommendations.resumo}</p>
+              <div className="mt-4 grid gap-3 md:grid-cols-3">
+                {recommendations.itens.slice(0, 3).map((item: RecommendationItem) => (
+                  <article key={`${item.tipo}-${item.titulo}`} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#2c9be3]">{item.tipo}</span>
+                    <h4 className="mt-2 line-clamp-2 text-sm font-bold leading-snug text-slate-800">{item.titulo}</h4>
+                    <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-slate-500">{item.descricao}</p>
+                    {item.url && <a href={item.url} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs font-bold text-[#2c9be3] hover:underline">Conhecer ↗</a>}
+                  </article>
+                ))}
+              </div>
+              <button type="button" onClick={() => router.push('/recomendacoes')} className="mt-5 w-full rounded-xl border-2 border-[#2c9be3] px-4 py-3 text-sm font-bold text-[#2c9be3] transition hover:bg-blue-50">
+                Ver sugestões detalhadas
+              </button>
+              <p className="mt-2 text-center text-[11px] text-slate-400">São possibilidades para você investigar, não escolhas definitivas.</p>
+            </div>
           </motion.div>
         )}
 
