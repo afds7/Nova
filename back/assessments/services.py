@@ -182,13 +182,6 @@ def generate_action_plan(data):
         logger.info('[CACHE] Plano de diagnóstico reutilizado | chave=%s', cache_digest[:12])
         return cached_plan
 
-    openai_client = OpenAI(
-        api_key=os.getenv("OPENAI_API_KEY"),
-        timeout=float(os.getenv('OPENAI_ASSESSMENT_TIMEOUT_SECONDS', '8')),
-        max_retries=0,
-    )
-    tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
-
     raw_area = data.get('area', '').strip().lower()
     fraqueza = data.get('weakest_point', 'falta de estratégia')
     forca = data.get('strongest_point', 'vontade de aprender')
@@ -213,6 +206,7 @@ def generate_action_plan(data):
         else:
             search_query = f"melhores faculdades, cursos de elite, certificações e materiais avançados para profissionais de {area_for_copy} no Brasil 2026"
 
+        tavily_client = TavilyClient(api_key=os.getenv("TAVILY_API_KEY"))
         search_result = tavily_client.search(
             query=search_query, search_depth="basic", max_results=3
         )
@@ -273,9 +267,14 @@ def generate_action_plan(data):
         (Como se blindar na área de {area_for_copy} criando vantagem competitiva usando a força dele em {forca}).
         ### 🎓 Formação e Materiais (Links Reais)
         (Indique pelo menos 1 Faculdade Referência, 1 Curso de Elite/Certificação e 1 Material/Livro obrigatório para a área de {area_for_copy}. É OBRIGATÓRIO usar o formato: [Nome da Instituição/Material](https://www.link.com)).{anti_codeblock_rule}
-        """
+    """
 
     try:
+        openai_client = OpenAI(
+            api_key=os.getenv("OPENAI_API_KEY"),
+            timeout=float(os.getenv('OPENAI_ASSESSMENT_TIMEOUT_SECONDS', '8')),
+            max_retries=0,
+        )
         response = openai_client.chat.completions.create(
             model=os.getenv('OPENAI_MODEL', 'gpt-5.6-luna'),
             messages=[
@@ -295,9 +294,9 @@ def generate_action_plan(data):
 
         # 2. Extração de Tokens da API
         usage = response.usage
-        prompt_tokens = usage.prompt_tokens
-        completion_tokens = usage.completion_tokens
-        total_tokens = usage.total_tokens
+        prompt_tokens = getattr(usage, 'prompt_tokens', 0) if usage else 0
+        completion_tokens = getattr(usage, 'completion_tokens', 0) if usage else 0
+        total_tokens = getattr(usage, 'total_tokens', 0) if usage else 0
 
         # 3. Métricas de uso do modelo configurado
         cost_input = (prompt_tokens / 1_000_000) * 0.15
