@@ -110,13 +110,13 @@ export default function Home() {
 
       {/* Header com logo */}
       <header className="absolute top-0 left-0 p-3 sm:p-5 md:p-7 z-10">
-        <div className="relative h-14 w-44 overflow-hidden md:h-16 md:w-48">
+        <div className="relative h-24 w-56 overflow-hidden">
           <img
             src="/logo-nova.png"
             alt="Logo NOVA Hub"
             width={650}
             height={366}
-            className="absolute left-[-167px] top-[-112px] max-w-none origin-top-left scale-[0.8]"
+            className="absolute left-[-220px] top-[-145px] max-w-none"
           />
         </div>
       </header>
