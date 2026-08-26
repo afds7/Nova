@@ -139,6 +139,7 @@ class LastAssessmentView(APIView):
                 'perfil_id': str(assessment.id),
                 'area': assessment.area,
                 'prioridade': assessment.weakest_point,
+                'perfil_hint': f'{assessment.strongest_point}; diagnóstico: {assessment.diagnostic}',
                 'pontos_fortes': [assessment.strongest_point],
                 'nivel_iep': assessment.iep_score,
             }),
@@ -161,6 +162,7 @@ class AssessmentRecommendationsView(APIView):
             'perfil_id': str(assessment.id),
             'area': assessment.area,
             'prioridade': assessment.weakest_point,
+            'perfil_hint': f'{assessment.strongest_point}; diagnóstico: {assessment.diagnostic}',
             'pontos_fortes': [assessment.strongest_point],
             'nivel_iep': assessment.iep_score,
         }), status=status.HTTP_200_OK)

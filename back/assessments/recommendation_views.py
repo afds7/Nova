@@ -28,6 +28,7 @@ class RecommendationsView(APIView):
             'perfil_id': str(perfil.id),
             'area': getattr(getattr(perfil, 'objetivo', None), 'area_curso', ''),
             'prioridade': prioridade.nome if prioridade else '',
+            'perfil_hint': ', '.join(item.nome for item in ordenadas[:3]),
             'pontos_fortes': [item.nome for item in ordenadas[:3]],
             'nivel_iep': float(historico.iep_score) if historico else 0,
         })

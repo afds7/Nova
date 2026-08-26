@@ -11,6 +11,7 @@ from urllib.parse import quote_plus
 
 from django.core.cache import cache
 from openai import OpenAI
+from tavily import TavilyClient
 
 logger = logging.getLogger(__name__)
 
@@ -48,7 +49,50 @@ def _cache_key(context: dict[str, Any]) -> str:
         json.dumps(context, ensure_ascii=False, sort_keys=True).encode('utf-8')
     ).hexdigest()
     # v2 invalida respostas genéricas que foram guardadas antes da curadoria específica.
-    return f'nova:recommendations:v4:{digest}'
+    return f'nova:recommendations:v5:{digest}'
+
+
+def _buscar_fontes(context: dict[str, Any]) -> dict[str, list[dict[str, str]]]:
+    """Busca fontes antes da IA; não envia nome, e-mail ou identificadores pessoais."""
+    api_key = os.getenv('TAVILY_API_KEY', '').strip()
+    if not api_key:
+        raise RuntimeError('TAVILY_API_KEY não configurada')
+
+    area = context['area'] or 'a área escolhida'
+    perfil_hint = context['perfil_hint'] or context['prioridade'] or 'interesses profissionais'
+    queries = {
+        'faculdades': [
+            f'{area} faculdade universidade pública privada presencial EAD {perfil_hint}',
+            f'{area} faculdade nota de corte 2026 bolsas financiamento fora de São Paulo e Rio de Janeiro',
+        ],
+        'livros': [
+            f'melhores livros introdutórios e avançados para começar em {area}',
+            f'livros {area} recomendados por profissionais {perfil_hint}',
+        ],
+        'cursos': [
+            f'curso gratuito {area} certificado 2026',
+            f'curso online {perfil_hint} relacionado a {area} gratuito pago',
+        ],
+        'comunidades': [
+            f'comunidade {area} Brasil fórum discord associação profissional',
+            f'eventos estudantes profissionais {area} Brasil 2026',
+        ],
+    }
+    client = TavilyClient(api_key=api_key)
+    sources: dict[str, list[dict[str, str]]] = {}
+    for category, category_queries in queries.items():
+        category_results: list[dict[str, str]] = []
+        for query in category_queries:
+            response = client.search(query=query, search_depth='basic', max_results=4)
+            for result in response.get('results', []):
+                if result.get('url') and result.get('title'):
+                    category_results.append({
+                        'titulo': str(result['title'])[:220],
+                        'url': str(result['url'])[:1000],
+                        'trecho': str(result.get('content', ''))[:500],
+                    })
+        sources[category] = category_results
+    return sources
 
 
 def _itens_especificos(area: str, competencia: str) -> list[dict[str, Any]]:
@@ -315,6 +359,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
         'perfil_id': str(context.get('perfil_id', '')).strip()[:80],
         'area': str(context.get('area', '')).strip()[:255],
         'prioridade': str(context.get('prioridade', '')).strip()[:120],
+        'perfil_hint': str(context.get('perfil_hint', '')).strip()[:255],
         'pontos_fortes': sorted(str(value)[:120] for value in context.get('pontos_fortes', [])),
         'nivel_iep': int(context.get('nivel_iep') or 0),
     }
@@ -325,6 +370,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
 
     fallback = _fallback(safe_context)
     try:
+        fontes = _buscar_fontes(safe_context)
         client = OpenAI(
             api_key=os.getenv('OPENAI_API_KEY'),
             timeout=_bounded_timeout(),
@@ -337,18 +383,16 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                 {
                     'role': 'system',
                     'content': (
-                        'Você é um orientador vocacional especialista no curso informado pelo usuário. '
-                        'A pessoa já decidiu seguir essa área. Responda somente JSON válido, sem markdown. '
-                        'Adapte 100% do conteúdo ao curso escolhido: cada instituição, livro, curso e comunidade '
-                        'deve fazer sentido especificamente para essa área. Nunca use frases genéricas como '
-                        'procure uma boa universidade, existem vários livros ou pesquise cursos online. '
-                        'Use nomes próprios e dados verificáveis. Misture faculdades públicas e privadas, '
-                        'presenciais e EAD, incluindo pelo menos uma opção fora do eixo Rio-São Paulo. '
-                        'Inclua livros introdutórios/didáticos, referências avançadas e uma leitura leve sobre a profissão. '
-                        'Inclua cursos complementares gratuitos e pagos, nacionais e internacionais. '
-                        'Forneça links oficiais quando tiver segurança; se não tiver certeza do caminho exato, use o site '
-                        'institucional e explique que a página de ingresso pode variar. Não invente URLs específicas. '
-                        'Toda sugestão é uma possibilidade para investigação, nunca uma obrigação ou diagnóstico.'
+                        'Você é Luna, orientadora vocacional. Responda somente JSON válido, sem markdown. '
+                        'A pessoa já decidiu seguir a área informada. Use exclusivamente as fontes do Tavily '
+                        'fornecidas abaixo para selecionar instituições, livros, cursos e comunidades. '
+                        'Não responda com itens de memória nem invente nomes, links ou dados. '
+                        'Releia todo o contexto anonimizado do perfil e conecte cada justificativa a um dado específico dele. '
+                        'Misture faculdades públicas e privadas, presenciais e EAD, com pelo menos uma fora do eixo Rio-São Paulo. '
+                        'Misture livro introdutório, técnico/avançado e leitura ligada ao interesse do perfil. '
+                        'Inclua curso gratuito, pago e ligado ao interesse específico. '
+                        'Toda sugestão é uma possibilidade, nunca uma obrigação ou diagnóstico. '
+                        'Se uma fonte não comprovar um detalhe, escreva que ele precisa ser confirmado na instituição.'
                     ),
                 },
                 {
@@ -365,6 +409,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                             'comunidades': 'array com 2 a 5 fóruns, associações, eventos ou grupos específicos da área',
                             'item': ['tipo', 'titulo', 'descricao', 'o_que_fazer', 'como_fazer', 'opcoes', 'por_que_pode_fazer_sentido', 'url', 'nivel', 'estimativa_tempo', 'custo', 'alcance', 'modalidade'],
                         },
+                        'fontes_tavily': fontes,
                     }, ensure_ascii=False),
                 },
             ],
