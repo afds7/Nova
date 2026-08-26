@@ -104,6 +104,54 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'modalidade': 'presencial ou online',
             },
             {
+                'tipo': 'curso',
+                'titulo': f'Escola Virtual da Fundação Bradesco: trilhas de {area}',
+                'descricao': 'Cursos online gratuitos para testar fundamentos e criar uma rotina de estudos.',
+                'por_que_pode_fazer_sentido': 'É uma forma acessível de experimentar a área antes de investir em uma formação paga.',
+                'url': 'https://www.ev.org.br/areas-de-interesse',
+                'nivel': 'inicial',
+                'estimativa_tempo': 'Algumas horas por curso',
+                'custo': 'gratuito',
+                'alcance': 'nacional',
+                'modalidade': 'online',
+            },
+            {
+                'tipo': 'curso',
+                'titulo': f'Coursera e edX: especializações em {area}',
+                'descricao': 'Catálogos internacionais com cursos gratuitos para assistir e trilhas pagas com certificado.',
+                'por_que_pode_fazer_sentido': 'Permite comparar professores, ementas e certificados em uma plataforma internacional.',
+                'url': f'https://www.edx.org/search?q={area_query}',
+                'nivel': 'inicial a avancado',
+                'estimativa_tempo': '4 a 12 semanas',
+                'custo': 'gratuito ou pago',
+                'alcance': 'internacional',
+                'modalidade': 'online',
+            },
+            {
+                'tipo': 'livro',
+                'titulo': 'So Good They Can\'t Ignore You, de Cal Newport',
+                'descricao': 'Livro sobre construção de habilidades e escolhas profissionais com mais critério.',
+                'por_que_pode_fazer_sentido': f'Pode ajudar a transformar {competencia} em uma habilidade demonstrável.',
+                'url': 'https://calnewport.com/books/so-good-they-cant-ignore-you/',
+                'nivel': 'todos',
+                'estimativa_tempo': 'Leitura gradual',
+                'custo': 'pago',
+                'alcance': 'internacional',
+                'modalidade': 'livro',
+            },
+            {
+                'tipo': 'certificacao',
+                'titulo': f'Certificações introdutórias para {area}',
+                'descricao': 'Compare certificações de empresas e associações reconhecidas antes de escolher uma prova.',
+                'por_que_pode_fazer_sentido': 'Pode criar um sinal objetivo de estudo, desde que acompanhado de projeto ou prática real.',
+                'url': f'https://www.coursera.org/search?query={area_query}',
+                'nivel': 'intermediario',
+                'estimativa_tempo': '1 a 4 meses',
+                'custo': 'gratuito ou pago',
+                'alcance': 'nacional e internacional',
+                'modalidade': 'online',
+            },
+            {
                 'tipo': 'recurso',
                 'titulo': 'Plano de teste em 7 dias',
                 'descricao': f'Escolha uma tarefa pequena ligada a {area} e registre o que aprendeu.',
@@ -128,7 +176,7 @@ def _normalizar_itens(raw: Any, fallback: dict[str, Any]) -> list[dict[str, str]
     if not isinstance(raw, list):
         return fallback['itens']
     itens: list[dict[str, str]] = []
-    for item in raw[:8]:
+    for item in raw[:12]:
         if not isinstance(item, dict):
             continue
         tipo = str(item.get('tipo', 'recurso')).lower().strip()
@@ -193,7 +241,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                         'iep_atual': safe_context['nivel_iep'],
                         'formato_obrigatorio': {
                             'resumo': 'string',
-                            'itens': 'array com 4 a 8 objetos',
+                            'itens': 'array com 8 a 12 objetos variados',
                             'proximos_passos': 'array com 2 a 3 strings',
                             'item': ['tipo', 'titulo', 'descricao', 'por_que_pode_fazer_sentido', 'url', 'nivel', 'estimativa_tempo', 'custo', 'alcance', 'modalidade'],
                         },

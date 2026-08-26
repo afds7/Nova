@@ -521,7 +521,7 @@ export default function Quiz() {
             <div className="p-5 md:p-6">
               <p className="text-sm leading-relaxed text-slate-600">{recommendations.resumo}</p>
               <div className="mt-4 grid gap-3 md:grid-cols-3">
-                {recommendations.itens.slice(0, 3).map((item: RecommendationItem) => (
+                {recommendations.itens.slice(0, 6).map((item: RecommendationItem) => (
                   <article key={`${item.tipo}-${item.titulo}`} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#2c9be3]">{item.tipo}</span>
                     <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-semibold text-slate-500">
