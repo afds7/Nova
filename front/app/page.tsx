@@ -116,7 +116,7 @@ export default function Home() {
             alt="Logo NOVA Hub"
             width={650}
             height={366}
-            className="absolute left-[-167px] top-[-105px] max-w-none origin-top-left scale-[0.8]"
+            className="absolute left-[-167px] top-[-112px] max-w-none origin-top-left scale-[0.8]"
           />
         </div>
       </header>
