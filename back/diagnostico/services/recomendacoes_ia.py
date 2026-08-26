@@ -17,10 +17,10 @@ logger = logging.getLogger(__name__)
 
 def _bounded_timeout() -> float:
     try:
-        configured = float(os.getenv('OPENAI_RECOMMENDATIONS_TIMEOUT_SECONDS', '2'))
+        configured = float(os.getenv('OPENAI_RECOMMENDATIONS_TIMEOUT_SECONDS', '8'))
     except (TypeError, ValueError):
-        configured = 2.0
-    return min(max(configured, 0.5), 2.0)
+        configured = 8.0
+    return min(max(configured, 1.0), 8.0)
 
 TIPOS = {'curso', 'faculdade', 'livro', 'certificacao', 'recurso'}
 
@@ -48,7 +48,7 @@ def _cache_key(context: dict[str, Any]) -> str:
         json.dumps(context, ensure_ascii=False, sort_keys=True).encode('utf-8')
     ).hexdigest()
     # v2 invalida respostas genéricas que foram guardadas antes da curadoria específica.
-    return f'nova:recommendations:v2:{digest}'
+    return f'nova:recommendations:v3:{digest}'
 
 
 def _itens_especificos(area: str, competencia: str) -> list[dict[str, Any]]:
