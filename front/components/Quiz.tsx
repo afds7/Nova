@@ -9,7 +9,6 @@ import { QUESTIONS } from '../constants/questions';
 import { calculateScores, getDiagnostics } from '../utils/math';
 import { useRouter } from 'next/navigation';
 import AuthModal from './AuthModal';
-import type { RecommendationItem } from '../store/useRecommendationsStore';
 
 
 // Mapeamento: pilar mais forte do aluno → sugestão de áreas abrangentes
@@ -504,46 +503,27 @@ export default function Quiz() {
           </motion.div>
         )}
 
-        {recommendations && (
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.46 }}
-            className="overflow-hidden rounded-2xl border border-slate-200/80 bg-white shadow-md"
-          >
-            <div className="flex items-center justify-between gap-3 bg-slate-800 px-6 py-4 text-white">
-              <div>
-                <p className="text-[10px] font-bold uppercase tracking-widest text-blue-200">Para explorar a partir daqui</p>
-                <h3 className="mt-1 text-base font-bold">Cursos, faculdades e materiais que podem combinar com seu perfil</h3>
-              </div>
-              <span className="hidden text-xl sm:block" aria-hidden="true">✦</span>
-            </div>
-            <div className="p-5 md:p-6">
-              <p className="text-sm leading-relaxed text-slate-600">{recommendations.resumo}</p>
-              <div className="mt-4 grid gap-3 md:grid-cols-3">
-                {recommendations.itens.slice(0, 6).map((item: RecommendationItem) => (
-                  <article key={`${item.tipo}-${item.titulo}`} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#2c9be3]">{item.tipo}</span>
-                    <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-semibold text-slate-500">
-                      {item.custo && <span className="rounded-full bg-emerald-50 px-2 py-1">{item.custo}</span>}
-                      {item.alcance && <span className="rounded-full bg-blue-50 px-2 py-1">{item.alcance}</span>}
-                    </div>
-                    <h4 className="mt-2 line-clamp-2 text-sm font-bold leading-snug text-slate-800">{item.titulo}</h4>
-                    <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-slate-500">{item.descricao}</p>
-                    <p className="mt-2 text-xs leading-relaxed text-slate-600"><strong>O que fazer:</strong> {item.o_que_fazer || item.descricao || 'Escolha esta opção para explorar a área com mais proximidade.'}</p>
-                    <p className="mt-2 text-xs leading-relaxed text-slate-600"><strong>Como avançar:</strong> {item.como_fazer || 'Compare esta opção com as alternativas e faça um primeiro teste antes de decidir.'}</p>
-                    {item.opcoes?.length > 0 && <p className="mt-2 text-[11px] font-semibold leading-relaxed text-[#2c9be3]">Opções: {item.opcoes.slice(0, 3).join(' · ')}</p>}
-                    {item.url && <a href={item.url} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs font-bold text-[#2c9be3] hover:underline">Conhecer ↗</a>}
-                  </article>
-                ))}
-              </div>
-              <button type="button" onClick={() => router.push('/recomendacoes')} className="mt-5 w-full rounded-xl border-2 border-[#2c9be3] px-4 py-3 text-sm font-bold text-[#2c9be3] transition hover:bg-blue-50">
-                Ver sugestões detalhadas
-              </button>
-              <p className="mt-2 text-center text-[11px] text-slate-400">São possibilidades para você investigar, não escolhas definitivas.</p>
-            </div>
-          </motion.div>
-        )}
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.46 }}
+          className="overflow-hidden rounded-2xl border border-blue-100 bg-white shadow-md"
+        >
+          <div className="bg-[#2c9be3] px-6 py-4 text-white">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-blue-100">Seu próximo passo</p>
+            <h3 className="mt-1 text-base font-bold">Veja caminhos para começar na sua área</h3>
+          </div>
+          <div className="p-5 md:p-6">
+            <p className="text-sm leading-relaxed text-slate-600">
+              Na aba Sugestões, você encontra faculdades, cursos, livros e certificações explicados do zero:
+              o que cada opção oferece, como comparar e qual pode ser o próximo passo.
+            </p>
+            <button type="button" onClick={() => router.push('/recomendacoes')} className="mt-5 w-full rounded-xl bg-[#2c9be3] px-4 py-3.5 text-sm font-bold text-white transition hover:bg-[#2188ca]">
+              Abrir minhas sugestões detalhadas
+            </button>
+            <p className="mt-2 text-center text-[11px] text-slate-400">As sugestões são possibilidades para investigar, não escolhas definitivas.</p>
+          </div>
+        </motion.div>
 
         {/* Botão acessar menu */}
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="pt-2">
