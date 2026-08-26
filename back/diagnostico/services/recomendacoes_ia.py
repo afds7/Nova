@@ -48,7 +48,7 @@ def _cache_key(context: dict[str, Any]) -> str:
         json.dumps(context, ensure_ascii=False, sort_keys=True).encode('utf-8')
     ).hexdigest()
     # v2 invalida respostas genéricas que foram guardadas antes da curadoria específica.
-    return f'nova:recommendations:v3:{digest}'
+    return f'nova:recommendations:v4:{digest}'
 
 
 def _itens_especificos(area: str, competencia: str) -> list[dict[str, Any]]:
@@ -291,6 +291,23 @@ def _normalizar_itens(raw: Any, fallback: dict[str, Any]) -> list[dict[str, str]
     return itens or fallback['itens']
 
 
+def _resposta_ia_esta_detalhada(raw: Any) -> bool:
+    """Impede que uma resposta curta/genérica seja exibida como recomendação final."""
+    if not isinstance(raw, list):
+        return False
+    valid = [item for item in raw if isinstance(item, dict) and str(item.get('titulo', '')).strip()]
+    types = {str(item.get('tipo', '')).lower().strip() for item in valid}
+    required = {'faculdade', 'livro', 'curso'}
+    if not required.issubset(types) or len(valid) < 8:
+        return False
+    return all(
+        str(item.get('o_que_fazer', '')).strip()
+        and str(item.get('como_fazer', '')).strip()
+        and str(item.get('por_que_pode_fazer_sentido', '')).strip()
+        for item in valid
+    )
+
+
 def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
     """Retorna recomendações estruturadas; falha externa nunca bloqueia o diagnóstico."""
     safe_context = {
@@ -354,6 +371,10 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
         parsed = json.loads(response.choices[0].message.content or '{}')
         raw_steps = parsed.get('proximos_passos', fallback['proximos_passos'])
         steps = raw_steps if isinstance(raw_steps, list) else fallback['proximos_passos']
+        # Uma resposta com poucos detalhes volta para a curadoria local. Assim,
+        # nenhum perfil recebe cartões genéricos só porque a IA respondeu incompleto.
+        if not _resposta_ia_esta_detalhada(parsed.get('itens')):
+            raise ValueError('resposta da IA sem detalhamento mínimo por área')
         result = {
             'origem': 'ia',
             'resumo': str(parsed.get('resumo', fallback['resumo']))[:700],
