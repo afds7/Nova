@@ -32,6 +32,7 @@ interface QuizState {
   resetQuiz: () => void;
   startQuiz: () => void;
   setActionPlan: (plan: string) => void;
+  setRecommendations: (recommendations: RecommendationsData | null) => void;
   setFullResult: (result: FullResult) => void;
 }
 
@@ -61,6 +62,7 @@ export const useQuizStore = create<QuizState>((set) => ({
   actionPlan: '',
   recommendations: null,
   setActionPlan: (plan) => set({ actionPlan: plan }),
+  setRecommendations: (recommendations) => set({ recommendations }),
 
   resetQuiz: () => set({ currentStep: 0, answers: {}, leadInfo: { name: '', email: '', area: '' }, actionPlan: '', recommendations: null }),
 

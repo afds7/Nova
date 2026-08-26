@@ -4,7 +4,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.views import APIView
 from .models import Assessment, PerfilAluno, HistoricoIEP, Objetivo, Competencia
 from .serializers import AssessmentSerializer
-from .services import generate_action_plan
+from .services import build_marketing_copy, generate_action_plan
 from django.core.cache import cache
 from .cache_utils import assessment_cache_key, invalidate_profile_cache
 from diagnostico.services.recomendacoes_ia import gerar_recomendacoes
@@ -23,13 +23,13 @@ class AssessmentCreateView(generics.CreateAPIView):
         # 2. Chama a IA (LGPD safe - só passamos scores)
         data = serializer.validated_data
         password = data.pop('password', '') # Extrai a senha antes de salvar no modelo Assessment
-        action_plan = generate_action_plan(data)
-        recommendations = gerar_recomendacoes({
-            'area': data.get('area', ''),
-            'prioridade': data.get('weakest_point', ''),
-            'pontos_fortes': [data.get('strongest_point', '')],
-            'nivel_iep': data.get('iep_score', 0),
-        })
+        # A tela de diagnóstico precisa abrir mesmo quando um provedor externo demora.
+        # O plano enriquecido pela IA é carregado em endpoint separado depois do save.
+        action_plan = build_marketing_copy(
+            iep=data['iep_score'], iev=data['iev_score'], area=data.get('area', 'sua área'),
+            fraqueza=data.get('weakest_point', 'falta de estratégia'),
+            forca=data.get('strongest_point', 'vontade de aprender'), gap=data.get('gap', 0),
+        )
 
         # 3. Salva no banco JÁ COM o plano de ação embutido
         assessment = serializer.save(action_plan=action_plan)
@@ -96,7 +96,8 @@ class AssessmentCreateView(generics.CreateAPIView):
         headers = self.get_success_headers(serializer.data)
         response_data = serializer.data
         response_data['action_plan'] = action_plan
-        response_data['recommendations'] = recommendations
+        response_data['recommendations'] = None
+        response_data['plan_pending'] = True
 
         return Response(response_data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -143,3 +144,24 @@ class LastAssessmentView(APIView):
         }
         cache.set(assessment_cache_key(email), payload, 60)
         return Response(payload, status=status.HTTP_200_OK)
+
+
+class AssessmentPlanView(APIView):
+    """Gera o plano de IA depois que o diagnóstico já foi salvo e exibido."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, assessment_id):
+        assessment = Assessment.objects.filter(id=assessment_id).first()
+        if not assessment:
+            return Response({'error': 'Diagnóstico não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+        plan = generate_action_plan({
+            'area': assessment.area, 'iep_score': assessment.iep_score,
+            'iev_score': assessment.iev_score, 'diagnostic': assessment.diagnostic,
+            'strongest_point': assessment.strongest_point,
+            'weakest_point': assessment.weakest_point, 'gap': assessment.gap,
+        })
+        if assessment.action_plan != plan:
+            Assessment.objects.filter(id=assessment.id).update(action_plan=plan)
+        return Response({'action_plan': plan, 'plan_pending': False}, status=status.HTTP_200_OK)

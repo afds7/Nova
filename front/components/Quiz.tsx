@@ -65,7 +65,7 @@ export default function Quiz() {
   const {
     currentStep, answers, leadInfo,
     setAnswer, setLeadInfo, nextStep, prevStep,
-    resetQuiz, actionPlan, recommendations, setActionPlan,
+    resetQuiz, actionPlan, recommendations, setActionPlan, setRecommendations,
   } = useQuizStore();
 
   const [localName, setLocalName]       = useState('');
@@ -78,6 +78,8 @@ export default function Quiz() {
   const [emailError, setEmailError]     = useState('');
   const [submitError, setSubmitError]   = useState('');
   const [authModalOpen, setAuthModalOpen] = useState(false);
+  const [assessmentId, setAssessmentId] = useState<string | null>(null);
+  const [isPlanUpdating, setIsPlanUpdating] = useState(false);
 
   const scores = useMemo(() => calculateScores(answers), [answers]);
 
@@ -98,6 +100,32 @@ export default function Quiz() {
   useEffect(() => {
     if (suggestedArea && !isAreaEdited) setLocalArea(suggestedArea);
   }, [suggestedArea, isAreaEdited]);
+
+  // O diagnóstico determinístico aparece primeiro. A IA enriquece o plano depois,
+  // para que timeout/rate limit nunca impeça o aluno de ver seu resultado.
+  useEffect(() => {
+    if (currentStep !== QUESTIONS.length + 2 || !assessmentId) return;
+
+    let cancelled = false;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    setIsPlanUpdating(true);
+    fetch(`${apiUrl}/api/assessments/${assessmentId}/plan/`)
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return response.json() as Promise<{ action_plan?: string }>;
+      })
+      .then((data) => {
+        if (!cancelled && data?.action_plan) setActionPlan(data.action_plan);
+      })
+      .catch(() => {
+        // O plano determinístico já está visível; não interrompe o fluxo por falha externa.
+      })
+      .finally(() => {
+        if (!cancelled) setIsPlanUpdating(false);
+      });
+
+    return () => { cancelled = true; };
+  }, [currentStep, assessmentId, setActionPlan]);
 
   // Guard: se currentStep for 0 (estado inicial antes da LandingPage transicionar), não renderiza nada
   if (currentStep === 0) return null;
@@ -127,8 +155,12 @@ export default function Quiz() {
         });
         if (response.ok) {
           const data = await response.json(); 
+          setAssessmentId(data.id || null);
           setActionPlan(data.action_plan); 
-          useQuizStore.setState({ recommendations: data.recommendations || null });
+          setRecommendations(data.recommendations || null);
+
+          // O diagnóstico já foi salvo: mostre o resultado sem esperar a sessão.
+          nextStep();
           
           if (!session?.user) {
             // Faz login automaticamente com a senha recém-criada
@@ -143,8 +175,6 @@ export default function Quiz() {
               return;
             }
           }
-
-          nextStep();
           return;
         }
 
@@ -430,6 +460,11 @@ export default function Quiz() {
             </div>
             <div className="p-8 prose max-w-none prose-headings:font-bold prose-a:text-[#2c9be3] hover:prose-a:text-[#1d81c2]">
               <ReactMarkdown>{actionPlan}</ReactMarkdown>
+              {isPlanUpdating && (
+                <p className="not-prose mt-5 text-xs font-medium text-slate-400">
+                  Ajustando este plano com referências personalizadas...
+                </p>
+              )}
             </div>
           </motion.div>
         ) : (
