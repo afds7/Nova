@@ -6,6 +6,9 @@ export interface RecommendationItem {
   tipo: RecommendationType;
   titulo: string;
   descricao: string;
+  o_que_fazer: string;
+  como_fazer: string;
+  opcoes: string[];
   por_que_pode_fazer_sentido: string;
   url: string;
   nivel: string;

@@ -25,6 +25,24 @@ def _bounded_timeout() -> float:
 TIPOS = {'curso', 'faculdade', 'livro', 'certificacao', 'recurso'}
 
 
+def _opcoes_por_area(area: str, tipo: str) -> list[str]:
+    """Oferece pontos de partida concretos mesmo quando a IA está indisponível."""
+    normalized = area.lower()
+    if tipo == 'faculdade' and 'direito' in normalized:
+        return ['USP', 'São Judas', 'Estácio']
+    if tipo == 'faculdade' and any(term in normalized for term in ('tecnologia', 'informação', 'computação', 'software')):
+        return ['USP', 'Mackenzie', 'FIAP']
+    if tipo == 'faculdade' and any(term in normalized for term in ('engenharia', 'biologia', 'saúde')):
+        return ['USP', 'UNESP', 'PUC']
+    if tipo == 'faculdade':
+        return ['Universidade pública da sua região', 'São Judas', 'Estácio']
+    if tipo == 'curso':
+        return ['Escola Virtual Fundação Bradesco', 'Coursera', 'edX']
+    if tipo == 'livro':
+        return ['Biblioteca pública ou universitária', 'e-book', 'livraria']
+    return []
+
+
 def _cache_key(context: dict[str, Any]) -> str:
     digest = hashlib.sha256(
         json.dumps(context, ensure_ascii=False, sort_keys=True).encode('utf-8')
@@ -54,6 +72,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'custo': 'gratuito',
                 'alcance': 'nacional',
                 'modalidade': 'online',
+                'o_que_fazer': f'Liste graduações de {area} e compare a grade curricular antes de escolher.',
+                'como_fazer': 'Separe duas opções públicas, duas privadas e confira duração, modalidade, bolsas e reconhecimento no e-MEC.',
+                'opcoes': _opcoes_por_area(area, 'faculdade'),
             },
             {
                 'tipo': 'curso',
@@ -66,6 +87,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'custo': 'gratuito e pago',
                 'alcance': 'internacional',
                 'modalidade': 'online',
+                'o_que_fazer': f'Teste os fundamentos de {area} em uma trilha curta.',
+                'como_fazer': 'Faça a primeira aula, reserve dois blocos de estudo na semana e registre se a prática despertou interesse.',
+                'opcoes': _opcoes_por_area(area, 'curso'),
             },
             {
                 'tipo': 'livro',
@@ -78,6 +102,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'custo': 'pago',
                 'alcance': 'internacional',
                 'modalidade': 'livro',
+                'o_que_fazer': 'Use a leitura para organizar perguntas sobre sua escolha profissional.',
+                'como_fazer': 'Leia um capítulo por semana e anote uma ideia que pode ser testada em uma experiência prática.',
+                'opcoes': _opcoes_por_area(area, 'livro'),
             },
             {
                 'tipo': 'curso',
@@ -90,6 +117,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'custo': 'gratuito',
                 'alcance': 'nacional',
                 'modalidade': 'presencial ou online',
+                'o_que_fazer': f'Procure uma porta de entrada gratuita em {area}.',
+                'como_fazer': 'Pesquise editais, pré-requisitos e datas de inscrição em institutos federais e escolas técnicas da sua região.',
+                'opcoes': ['Institutos Federais', 'Escolas Técnicas Estaduais', 'Fundação Bradesco'],
             },
             {
                 'tipo': 'faculdade',
@@ -102,6 +132,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'custo': 'gratuito, bolsa ou pago',
                 'alcance': 'nacional',
                 'modalidade': 'presencial ou online',
+                'o_que_fazer': 'Compare caminhos de graduação que cabem no seu momento e orçamento.',
+                'como_fazer': 'Monte uma tabela com mensalidade, bolsas, financiamento, nota do curso, turno e distância.',
+                'opcoes': _opcoes_por_area(area, 'faculdade'),
             },
             {
                 'tipo': 'curso',
@@ -114,6 +147,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'custo': 'gratuito',
                 'alcance': 'nacional',
                 'modalidade': 'online',
+                'o_que_fazer': f'Faça uma trilha gratuita de fundamentos em {area}.',
+                'como_fazer': 'Conclua um curso curto e guarde o certificado ou o projeto final como evidência.',
+                'opcoes': ['Escola Virtual Fundação Bradesco', 'Khan Academy', 'SENAI'],
             },
             {
                 'tipo': 'curso',
@@ -126,6 +162,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'custo': 'gratuito ou pago',
                 'alcance': 'internacional',
                 'modalidade': 'online',
+                'o_que_fazer': f'Compare uma formação internacional em {area}.',
+                'como_fazer': 'Assista ao conteúdo aberto, verifique idioma e certificado e só depois avalie pagar pela trilha completa.',
+                'opcoes': ['Coursera', 'edX', 'FutureLearn'],
             },
             {
                 'tipo': 'livro',
@@ -138,6 +177,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'custo': 'pago',
                 'alcance': 'internacional',
                 'modalidade': 'livro',
+                'o_que_fazer': 'Leia sobre construção de habilidades antes de decidir por uma especialização.',
+                'como_fazer': 'Escolha uma ideia do livro e transforme-a em um pequeno teste de carreira nesta semana.',
+                'opcoes': ['Biblioteca pública ou universitária', 'e-book', 'livraria'],
             },
             {
                 'tipo': 'certificacao',
@@ -150,6 +192,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'custo': 'gratuito ou pago',
                 'alcance': 'nacional e internacional',
                 'modalidade': 'online',
+                'o_que_fazer': f'Identifique uma certificação inicial útil para {area}.',
+                'como_fazer': 'Compare o conteúdo da prova, o custo total e a aceitação no mercado; combine a certificação com um projeto.',
+                'opcoes': ['Certificações de empresas da área', 'Coursera', 'Escolas profissionais nacionais'],
             },
             {
                 'tipo': 'recurso',
@@ -162,6 +207,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'custo': 'gratuito',
                 'alcance': 'qualquer',
                 'modalidade': 'autoguiado',
+                'o_que_fazer': f'Teste uma atividade pequena ligada a {area}.',
+                'como_fazer': 'Defina uma entrega simples, reserve até cinco dias úteis e registre o que aprendeu para comparar com outras opções.',
+                'opcoes': ['Projeto autoral', 'Conversa com alguém da área', 'Observação de uma aula aberta'],
             },
         ],
         'proximos_passos': [
@@ -193,6 +241,9 @@ def _normalizar_itens(raw: Any, fallback: dict[str, Any]) -> list[dict[str, str]
             'custo': str(item.get('custo', 'não informado'))[:60],
             'alcance': str(item.get('alcance', 'não informado'))[:40],
             'modalidade': str(item.get('modalidade', 'não informado'))[:80],
+            'o_que_fazer': str(item.get('o_que_fazer', item.get('descricao', ''))).strip()[:500],
+            'como_fazer': str(item.get('como_fazer', 'Pesquise a opção, compare alternativas e faça um primeiro teste antes de decidir.')).strip()[:500],
+            'opcoes': [str(option)[:160] for option in item.get('opcoes', []) if str(option).strip()][:5] if isinstance(item.get('opcoes', []), list) else [],
         })
     return itens or fallback['itens']
 
@@ -243,7 +294,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                             'resumo': 'string',
                             'itens': 'array com 8 a 12 objetos variados',
                             'proximos_passos': 'array com 2 a 3 strings',
-                            'item': ['tipo', 'titulo', 'descricao', 'por_que_pode_fazer_sentido', 'url', 'nivel', 'estimativa_tempo', 'custo', 'alcance', 'modalidade'],
+                            'item': ['tipo', 'titulo', 'descricao', 'o_que_fazer', 'como_fazer', 'opcoes', 'por_que_pode_fazer_sentido', 'url', 'nivel', 'estimativa_tempo', 'custo', 'alcance', 'modalidade'],
                         },
                     }, ensure_ascii=False),
                 },

@@ -530,6 +530,8 @@ export default function Quiz() {
                     </div>
                     <h4 className="mt-2 line-clamp-2 text-sm font-bold leading-snug text-slate-800">{item.titulo}</h4>
                     <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-slate-500">{item.descricao}</p>
+                    <p className="mt-2 text-xs leading-relaxed text-slate-600"><strong>Como avançar:</strong> {item.como_fazer}</p>
+                    {item.opcoes?.length > 0 && <p className="mt-2 text-[11px] font-semibold leading-relaxed text-[#2c9be3]">Opções: {item.opcoes.slice(0, 3).join(' · ')}</p>}
                     {item.url && <a href={item.url} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs font-bold text-[#2c9be3] hover:underline">Conhecer ↗</a>}
                   </article>
                 ))}
