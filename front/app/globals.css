@@ -84,6 +84,13 @@
   color: #0f172a;
 }
 
+html,
+body {
+  width: 100%;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
 /* =========================================
    Personalização da Scrollbar
    ========================================= */

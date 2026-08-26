@@ -140,11 +140,11 @@ export function DashboardPage() {
   };
 
   return (
-    <main className="min-h-screen bg-[#f1f5f9] pb-10">
+    <main className="w-full min-w-0 min-h-screen overflow-x-hidden bg-[#f1f5f9] pb-10">
 
       {/* ── Header ──────────────────────────────────────────────────── */}
-      <header className="bg-white border-b border-slate-100 sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 md:px-8 lg:px-10 py-3 sm:py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <header className="w-full bg-white border-b border-slate-100 sticky top-0 z-20">
+        <div className="w-full min-w-0 max-w-6xl mx-auto px-4 sm:px-5 md:px-8 lg:px-10 py-3 sm:py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative h-24 w-56 overflow-hidden">
             <img src="/logo-nova.png" alt="NOVA Hub" width={650} height={366} className="absolute left-[-220px] top-[-145px] max-w-none" />
           </div>

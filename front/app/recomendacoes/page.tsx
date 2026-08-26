@@ -44,7 +44,7 @@ export default function RecommendationsPage() {
 
   return (
     <main className="min-h-screen bg-[#f1f5f9] pb-12">
-      <header className="border-b border-slate-100 bg-white">
+      <header className="w-full border-b border-slate-100 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4 md:px-8">
           <Link href="/menu" className="relative h-24 w-56 overflow-hidden">
             <img src="/logo-nova.png" alt="NOVA Hub" width={650} height={366} className="absolute left-[-220px] top-[-145px] max-w-none" />
@@ -56,7 +56,7 @@ export default function RecommendationsPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl space-y-5 px-4 pt-6 sm:px-5 md:px-8 md:pt-9">
+      <div className="w-full min-w-0 mx-auto max-w-6xl space-y-5 px-4 pt-6 sm:px-5 md:px-8 md:pt-9">
         <section className="rounded-2xl bg-gradient-to-br from-[#2c9be3] to-[#1d81c2] p-6 text-white md:p-9">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-100">Explorar caminhos</p>
           <h1 className="mt-2 text-2xl font-black md:text-4xl">Possibilidades para o seu próximo passo</h1>
