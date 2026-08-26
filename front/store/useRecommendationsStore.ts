@@ -26,6 +26,7 @@ export interface RecommendationsData {
   resumo: string;
   itens: RecommendationItem[];
   proximos_passos: string[];
+  comunidades: string[];
 }
 
 interface RecommendationsState {

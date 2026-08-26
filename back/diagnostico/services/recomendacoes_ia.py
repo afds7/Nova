@@ -213,9 +213,16 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
             },
         ],
         'proximos_passos': [
-            f'Escolha um item de {area} para explorar nesta semana.',
-            'Anote o que despertou interesse e o que não funcionou.',
-            'Revise a lista depois de uma nova experiência prática.',
+            f'Confirme se {area} é o curso que você quer seguir e anote suas dúvidas principais.',
+            f'Compare a grade curricular de três instituições que oferecem {area}.',
+            'Verifique formas de ingresso, bolsas, mensalidades e datas no site oficial de cada instituição.',
+            'Faça uma experiência introdutória ligada ao curso antes de escolher a instituição.',
+            'Separe documentos, faça a inscrição no processo seletivo escolhido e acompanhe o resultado.',
+            'Após a aprovação, confirme a matrícula e consulte o calendário de início das aulas.',
+        ],
+        'comunidades': [
+            f'Procure o diretório ou associação profissional relacionada a {area}.',
+            'Participe de uma aula aberta, evento ou grupo de estudantes da área.',
         ],
     }
 
@@ -275,12 +282,18 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                 {
                     'role': 'system',
                     'content': (
-                        'Você é um orientador de possibilidades de formação. '
-                        'Responda somente JSON válido. Nunca trate uma sugestão como obrigação ou diagnóstico. '
-                        'Indique cursos, faculdades, livros, certificações e recursos que possam ser explorados. '
-                        'Monte uma lista equilibrada: inclua alternativas gratuitas, de baixo custo e pagas; '
-                        'opções nacionais e internacionais; modalidades online e presenciais quando fizer sentido. '
-                        'Priorize links oficiais ou páginas de busca confiáveis e não invente URLs específicas.'
+                        'Você é um orientador vocacional especialista no curso informado pelo usuário. '
+                        'A pessoa já decidiu seguir essa área. Responda somente JSON válido, sem markdown. '
+                        'Adapte 100% do conteúdo ao curso escolhido: cada instituição, livro, curso e comunidade '
+                        'deve fazer sentido especificamente para essa área. Nunca use frases genéricas como '
+                        'procure uma boa universidade, existem vários livros ou pesquise cursos online. '
+                        'Use nomes próprios e dados verificáveis. Misture faculdades públicas e privadas, '
+                        'presenciais e EAD, incluindo pelo menos uma opção fora do eixo Rio-São Paulo. '
+                        'Inclua livros introdutórios/didáticos, referências avançadas e uma leitura leve sobre a profissão. '
+                        'Inclua cursos complementares gratuitos e pagos, nacionais e internacionais. '
+                        'Forneça links oficiais quando tiver segurança; se não tiver certeza do caminho exato, use o site '
+                        'institucional e explique que a página de ingresso pode variar. Não invente URLs específicas. '
+                        'Toda sugestão é uma possibilidade para investigação, nunca uma obrigação ou diagnóstico.'
                     ),
                 },
                 {
@@ -291,9 +304,10 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                         'competencias_fortes': safe_context['pontos_fortes'],
                         'iep_atual': safe_context['nivel_iep'],
                         'formato_obrigatorio': {
-                            'resumo': 'string',
-                            'itens': 'array com 8 a 12 objetos variados',
-                            'proximos_passos': 'array com 2 a 3 strings',
+                            'resumo': 'string específico para o curso escolhido',
+                            'itens': 'array com 5 a 8 faculdades, 3 a 5 livros e 3 a 5 cursos/certificações',
+                            'proximos_passos': 'array com 6 a 10 ações em ordem cronológica, até matrícula e início das aulas',
+                            'comunidades': 'array com 2 a 5 fóruns, associações, eventos ou grupos específicos da área',
                             'item': ['tipo', 'titulo', 'descricao', 'o_que_fazer', 'como_fazer', 'opcoes', 'por_que_pode_fazer_sentido', 'url', 'nivel', 'estimativa_tempo', 'custo', 'alcance', 'modalidade'],
                         },
                     }, ensure_ascii=False),
@@ -308,7 +322,8 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
             'origem': 'ia',
             'resumo': str(parsed.get('resumo', fallback['resumo']))[:700],
             'itens': _normalizar_itens(parsed.get('itens'), fallback),
-            'proximos_passos': [str(item)[:300] for item in steps[:3]],
+            'proximos_passos': [str(item)[:300] for item in steps[:10]],
+            'comunidades': [str(item)[:300] for item in parsed.get('comunidades', fallback['comunidades'])[:5]] if isinstance(parsed.get('comunidades', fallback['comunidades']), list) else fallback['comunidades'],
         }
     except Exception as error:
         logger.warning('Recomendações indisponíveis; usando fallback: %s', error)
