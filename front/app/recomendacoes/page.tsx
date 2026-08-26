@@ -97,8 +97,8 @@ export default function RecommendationsPage() {
                   <h2 className="mt-4 text-lg font-bold leading-snug text-slate-800">{item.titulo}</h2>
                   <p className="mt-2 text-sm leading-relaxed text-slate-500">{item.descricao}</p>
                   <div className="mt-4 space-y-3 text-sm leading-relaxed">
-                    <p className="rounded-xl bg-blue-50 p-3 text-slate-700"><strong className="text-[#2c9be3]">O que fazer:</strong> {item.o_que_fazer}</p>
-                    <p className="rounded-xl bg-slate-50 p-3 text-slate-600"><strong className="text-slate-700">Como avançar:</strong> {item.como_fazer}</p>
+                    <p className="rounded-xl bg-blue-50 p-3 text-slate-700"><strong className="text-[#2c9be3]">O que fazer:</strong> {item.o_que_fazer || item.descricao || `Conheça ${item.titulo} e veja se esta opção combina com o seu momento.`}</p>
+                    <p className="rounded-xl bg-slate-50 p-3 text-slate-600"><strong className="text-slate-700">Como avançar:</strong> {item.como_fazer || 'Abra a opção, confira requisitos, custo, modalidade e prazo; depois compare com pelo menos uma alternativa antes de decidir.'}</p>
                     {item.opcoes.length > 0 && <div><p className="mb-2 text-xs font-bold uppercase tracking-wide text-slate-400">Opções para comparar</p><div className="flex flex-wrap gap-2">{item.opcoes.map((option) => <span key={option} className="rounded-full border border-slate-200 bg-white px-2.5 py-1 text-xs font-semibold text-slate-600">{option}</span>)}</div></div>}
                   </div>
                   <div className="mt-4 rounded-xl bg-slate-50 p-3 text-sm leading-relaxed text-slate-600"><strong className="text-slate-700">Por que pode fazer sentido:</strong> {item.por_que_pode_fazer_sentido}</div>
