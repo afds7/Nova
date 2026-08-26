@@ -14,6 +14,14 @@ from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 
+
+def _bounded_timeout() -> float:
+    try:
+        configured = float(os.getenv('OPENAI_RECOMMENDATIONS_TIMEOUT_SECONDS', '2'))
+    except (TypeError, ValueError):
+        configured = 2.0
+    return min(max(configured, 0.5), 2.0)
+
 TIPOS = {'curso', 'faculdade', 'livro', 'certificacao', 'recurso'}
 
 
@@ -119,7 +127,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
     try:
         client = OpenAI(
             api_key=os.getenv('OPENAI_API_KEY'),
-            timeout=float(os.getenv('OPENAI_RECOMMENDATIONS_TIMEOUT_SECONDS', '3')),
+            timeout=_bounded_timeout(),
             max_retries=0,
         )
         response = client.chat.completions.create(

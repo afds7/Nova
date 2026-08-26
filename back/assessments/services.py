@@ -18,6 +18,15 @@ from .models import Missao, MissaoAluno, PerfilAluno
 logger = logging.getLogger(__name__)
 
 
+def _bounded_ai_timeout(env_name: str, default: float = 2.0) -> float:
+    """Impede que uma configuração antiga faça o proxy esperar pela IA indefinidamente."""
+    try:
+        configured = float(os.getenv(env_name, str(default)))
+    except (TypeError, ValueError):
+        configured = default
+    return min(max(configured, 0.5), 2.0)
+
+
 class MotorDeMissoes:
     """Cria uma trilha persistente de missões específica para cada perfil."""
 
@@ -273,7 +282,7 @@ def generate_action_plan(data):
         openai_client = OpenAI(
             api_key=os.getenv("OPENAI_API_KEY"),
             # O diagnóstico é interativo; o fallback precisa chegar antes do timeout do proxy.
-            timeout=float(os.getenv('OPENAI_ASSESSMENT_TIMEOUT_SECONDS', '3')),
+            timeout=_bounded_ai_timeout('OPENAI_ASSESSMENT_TIMEOUT_SECONDS'),
             max_retries=0,
         )
         response = openai_client.chat.completions.create(
