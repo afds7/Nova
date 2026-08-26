@@ -311,6 +311,8 @@ def _resposta_ia_esta_detalhada(raw: Any) -> bool:
 def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
     """Retorna recomendações estruturadas; falha externa nunca bloqueia o diagnóstico."""
     safe_context = {
+        # Usado apenas para isolar o cache entre alunos; nunca entra no prompt.
+        'perfil_id': str(context.get('perfil_id', '')).strip()[:80],
         'area': str(context.get('area', '')).strip()[:255],
         'prioridade': str(context.get('prioridade', '')).strip()[:120],
         'pontos_fortes': sorted(str(value)[:120] for value in context.get('pontos_fortes', [])),

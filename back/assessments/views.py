@@ -136,6 +136,7 @@ class LastAssessmentView(APIView):
             "gap":             assessment.gap,
             "action_plan":     assessment.action_plan,
             "recommendations": gerar_recomendacoes({
+                'perfil_id': str(assessment.id),
                 'area': assessment.area,
                 'prioridade': assessment.weakest_point,
                 'pontos_fortes': [assessment.strongest_point],

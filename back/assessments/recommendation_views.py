@@ -25,6 +25,7 @@ class RecommendationsView(APIView):
         ordenadas = sorted(competencias, key=lambda item: item.nivel, reverse=True)
         prioridade = min(competencias, key=lambda item: item.nivel, default=None)
         result = gerar_recomendacoes({
+            'perfil_id': str(perfil.id),
             'area': getattr(getattr(perfil, 'objetivo', None), 'area_curso', ''),
             'prioridade': prioridade.nome if prioridade else '',
             'pontos_fortes': [item.nome for item in ordenadas[:3]],
