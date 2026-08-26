@@ -95,7 +95,7 @@ export default function Home() {
 
   // Quiz (para todos — logados ou não)
   return (
-    <main className="relative min-h-screen flex flex-col bg-[#f1f5f9] text-slate-900 p-6 md:p-12 overflow-x-hidden selection:bg-[#2c9be3]/20">
+    <main className="relative min-h-screen flex flex-col bg-[#f1f5f9] text-slate-900 p-4 sm:p-6 md:p-12 overflow-x-hidden selection:bg-[#2c9be3]/20">
       {/* Fundo reativo */}
       <div
         className="fixed inset-0 pointer-events-none -z-10 transition-opacity duration-500"
@@ -109,7 +109,7 @@ export default function Home() {
       />
 
       {/* Header com logo */}
-      <header className="absolute top-0 left-0 p-5 md:p-7 z-10">
+      <header className="absolute top-0 left-0 p-3 sm:p-5 md:p-7 z-10">
         <div className="relative h-14 w-44 overflow-hidden md:h-16 md:w-48">
           <img
             src="/logo-nova.png"

@@ -57,7 +57,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
       <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
 
       {/* Header */}
-      <header className="w-full px-6 md:px-12 py-5 flex items-center justify-between">
+      <header className="w-full px-4 sm:px-6 md:px-12 py-4 sm:py-5 flex items-center justify-between gap-3">
         <motion.div
           initial={{ opacity: 0, x: -12 }}
           animate={{ opacity: 1, x: 0 }}
@@ -80,7 +80,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
       </header>
 
       {/* Hero */}
-      <section className="flex-1 flex flex-col items-center justify-center px-6 py-16 text-center max-w-3xl mx-auto w-full">
+      <section className="flex-1 flex flex-col items-center justify-center px-4 py-10 sm:px-6 sm:py-16 text-center max-w-3xl mx-auto w-full">
 
         {/* Badge */}
         <motion.div
@@ -98,7 +98,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.1 }}
-          className="text-4xl md:text-6xl font-black text-slate-900 leading-tight tracking-tight mb-4"
+          className="text-3xl sm:text-4xl md:text-6xl font-black text-slate-900 leading-tight tracking-tight mb-4"
         >
           Descubra onde você está{' '}
           <span className="text-[#2c9be3]">na sua jornada</span>{' '}
@@ -109,7 +109,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, delay: 0.18 }}
-          className="text-slate-500 text-lg md:text-xl leading-relaxed max-w-xl mb-10"
+          className="text-slate-500 text-base sm:text-lg md:text-xl leading-relaxed max-w-xl mb-8 sm:mb-10"
         >
           Responda 17 perguntas rápidas e descubra o que já está funcionando, o que falta e qual pode ser seu próximo movimento.
         </motion.p>
@@ -125,7 +125,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
             whileHover={{ scale: 1.03 }}
             whileTap={{ scale: 0.97 }}
             onClick={onStart}
-            className="px-10 py-4 bg-[#2c9be3] hover:bg-[#1d81c2] text-white font-black text-base rounded-2xl transition-all shadow-xl shadow-[#2c9be3]/30 cursor-pointer"
+            className="w-full px-8 py-4 sm:w-auto sm:px-10 bg-[#2c9be3] hover:bg-[#1d81c2] text-white font-black text-base rounded-2xl transition-all shadow-xl shadow-[#2c9be3]/30 cursor-pointer"
           >
             Começar agora →
           </motion.button>
@@ -143,7 +143,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4, duration: 0.5 }}
-          className="flex items-center gap-8 mt-12"
+          className="grid w-full max-w-sm grid-cols-3 gap-3 mt-10 sm:mt-12"
         >
           {stats.map((s, i) => (
             <div key={i} className="text-center">
@@ -155,7 +155,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
       </section>
 
       {/* Features */}
-      <section className="w-full max-w-4xl mx-auto px-6 pb-16 grid grid-cols-1 md:grid-cols-3 gap-4">
+      <section className="w-full max-w-4xl mx-auto px-4 sm:px-6 pb-12 sm:pb-16 grid grid-cols-1 md:grid-cols-3 gap-4">
         {features.map((f, i) => (
           <motion.div
             key={i}

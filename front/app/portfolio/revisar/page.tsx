@@ -44,12 +44,12 @@ export default function ReviewDraftPage() {
   if (status === 'loading') return <main className="min-h-screen bg-slate-50 p-6" />;
 
   return (
-    <main className="min-h-screen bg-slate-50 px-5 py-8 md:px-8">
+    <main className="min-h-screen bg-slate-50 px-3 py-5 sm:px-5 sm:py-8 md:px-8">
       <div className="mx-auto max-w-2xl">
         <button type="button" onClick={() => router.back()} className="mb-6 text-sm font-bold text-[#2c9be3]">← Voltar</button>
-        <div className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm md:p-8">
+        <div className="rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:p-5 md:p-8">
           <p className="text-xs font-bold uppercase tracking-widest text-[#2c9be3]">Revisar evidência</p>
-          <h1 className="mt-2 text-2xl font-black text-slate-800">Deixe este registro com a sua cara</h1>
+          <h1 className="mt-2 text-xl font-black leading-tight text-slate-800 sm:text-2xl">Deixe este registro com a sua cara</h1>
           <p className="mt-2 text-sm leading-relaxed text-slate-500">A missão criou um rascunho para você revisar. Nada é publicado sem sua confirmação.</p>
 
           {!draft ? (

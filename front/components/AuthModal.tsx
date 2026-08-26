@@ -110,7 +110,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
             <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden">
 
               {/* Header degradê */}
-              <div className="bg-gradient-to-br from-[#2c9be3] to-[#1d81c2] px-8 pt-8 pb-12 text-white relative">
+              <div className="bg-gradient-to-br from-[#2c9be3] to-[#1d81c2] px-5 pt-7 pb-10 sm:px-8 sm:pt-8 sm:pb-12 text-white relative">
                 <button
                   onClick={onClose}
                   id="auth-modal-close"
@@ -137,7 +137,7 @@ export default function AuthModal({ isOpen, onClose, onSuccess }: AuthModalProps
               </div>
 
               {/* Card form — overlap */}
-              <div className="-mt-6 mx-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 mb-4">
+              <div className="-mt-6 mx-2 sm:mx-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-6 mb-4">
 
                 <form onSubmit={handleSubmit} className="space-y-3 mt-4">
 

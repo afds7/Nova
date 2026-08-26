@@ -66,7 +66,7 @@ export default function LoginPage() {
     'disabled:opacity-60';
 
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-[#f1f5f9] p-6">
+    <main className="min-h-screen flex flex-col items-center justify-center bg-[#f1f5f9] p-4 sm:p-6">
 
       {/* Logo */}
       <motion.div
@@ -91,7 +91,7 @@ export default function LoginPage() {
         className="w-full max-w-md bg-white rounded-3xl shadow-2xl overflow-hidden"
       >
         {/* Header degradê */}
-        <div className="bg-gradient-to-br from-[#2c9be3] to-[#1d81c2] px-8 pt-8 pb-12 text-white">
+        <div className="bg-gradient-to-br from-[#2c9be3] to-[#1d81c2] px-5 pt-7 pb-10 sm:px-8 sm:pt-8 sm:pb-12 text-white">
           <div className="w-12 h-12 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center mb-4">
             <svg className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
@@ -109,7 +109,7 @@ export default function LoginPage() {
         </div>
 
         {/* Form — overlap */}
-        <div className="-mt-6 mx-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 mb-4">
+        <div className="-mt-6 mx-2 sm:mx-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-6 mb-4">
           {/* Abas */}
           <div className="flex bg-slate-100 rounded-xl p-1 mb-5">
             {(['login', 'register'] as Mode[]).map((m) => (

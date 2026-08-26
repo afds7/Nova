@@ -32,18 +32,18 @@ export default function PortfolioPage() {
   return (
     <main className="portfolio-page min-h-screen bg-[#f1f5f9] pb-12">
       <header className="border-b border-slate-100 bg-white">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-5 md:px-8">
+        <div className="mx-auto flex max-w-6xl flex-col items-start gap-4 px-4 py-4 sm:px-5 sm:py-5 md:flex-row md:items-center md:justify-between md:px-8">
           <div>
             <Link href="/menu" className="text-sm font-bold text-[#2c9be3]">← Voltar ao menu</Link>
             <p className="mt-5 text-xs font-bold uppercase tracking-[0.18em] text-[#2c9be3]">Portfólio</p>
             <h1 className="mt-1 text-3xl font-black text-slate-800 md:text-4xl">O que você já construiu</h1>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500">Uma visão organizada das suas entregas, aprendizados e experiências que merecem ser lembrados.</p>
           </div>
-          <button type="button" onClick={() => window.print()} className="print:hidden rounded-xl bg-[#2c9be3] px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#2188ca]">Exportar PDF</button>
+          <button type="button" onClick={() => window.print()} className="print:hidden w-full rounded-xl bg-[#2c9be3] px-4 py-3 text-sm font-bold text-white shadow-sm hover:bg-[#2188ca] md:w-auto">Exportar PDF</button>
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl px-5 pt-6 md:px-8 md:pt-8">
+      <div className="mx-auto max-w-6xl px-4 pt-5 sm:px-5 sm:pt-6 md:px-8 md:pt-8">
         <div className="mb-6 flex flex-wrap items-center gap-2 print:hidden">
           {(['todos', ...Object.keys(labels)] as Array<'todos' | EvidenceType>).map((value) => (
             <button key={value} type="button" onClick={() => setFilter(value)} className={`rounded-full px-4 py-2 text-sm font-bold transition ${filter === value ? 'bg-[#2c9be3] text-white' : 'bg-white text-slate-500 hover:bg-slate-100'}`}>

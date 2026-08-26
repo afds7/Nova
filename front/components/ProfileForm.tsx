@@ -81,9 +81,9 @@ export default function ProfileForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto px-4 py-8 sm:px-6">
+    <div className="w-full max-w-md mx-auto px-3 py-6 sm:px-6 sm:py-8">
       {/* Container Principal com visual Premium (Glassmorphism + Sombra suave) */}
-      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-2xl backdrop-blur-md transition-all duration-300 hover:shadow-cyan-900/20">
+      <div className="bg-slate-900/90 border border-slate-800 rounded-3xl p-4 sm:p-6 shadow-2xl backdrop-blur-md transition-all duration-300 hover:shadow-cyan-900/20">
         
         {/* Cabeçalho */}
         <div className="mb-6">

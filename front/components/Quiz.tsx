@@ -225,12 +225,12 @@ export default function Quiz() {
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.4, ease: 'easeOut' }}
-        className="w-full max-w-md mx-auto"
+        className="w-full max-w-md mx-auto px-1 sm:px-0"
       >
         {/* Card */}
         <div className="bg-white border border-slate-200/80 rounded-3xl shadow-xl overflow-hidden">
           {/* Header colorido */}
-          <div className="bg-gradient-to-br from-[#2c9be3] to-[#1d81c2] px-8 pt-8 pb-10 text-center text-white">
+          <div className="bg-gradient-to-br from-[#2c9be3] to-[#1d81c2] px-5 pt-7 pb-9 sm:px-8 sm:pt-8 sm:pb-10 text-center text-white">
             <motion.div
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
@@ -246,7 +246,7 @@ export default function Quiz() {
           </div>
 
           {/* Form — overlap com o header */}
-          <div className="-mt-4 mx-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+          <div className="-mt-4 mx-2 sm:mx-4 bg-white rounded-2xl border border-slate-200/80 shadow-sm p-4 sm:p-6">
             {/* AuthModal de login/cadastro — ao entrar/cadastrar, fecha e mantém o resultado */}
             <AuthModal
               isOpen={authModalOpen}
@@ -395,14 +395,14 @@ export default function Quiz() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
-        className="w-full max-w-4xl mx-auto space-y-6 pb-12 mt-4"
+        className="w-full max-w-4xl mx-auto space-y-5 sm:space-y-6 pb-8 sm:pb-12 mt-4 px-1 sm:px-0"
       >
         {/* Card principal de perfil */}
         <motion.div
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.1 }}
-          className={`p-8 rounded-3xl border-2 text-center ${themeClasses.bg} ${themeClasses.border} shadow-lg`}
+          className={`p-5 sm:p-8 rounded-3xl border-2 text-center ${themeClasses.bg} ${themeClasses.border} shadow-lg`}
         >
           <div className="mb-2 text-xs font-bold tracking-widest uppercase text-slate-400">
             Diagnóstico de {leadInfo.name}
@@ -411,7 +411,7 @@ export default function Quiz() {
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
-            className={`text-4xl md:text-5xl font-black mb-4 ${themeClasses.text}`}
+            className={`text-3xl sm:text-4xl md:text-5xl font-black mb-4 ${themeClasses.text}`}
           >
             {mainDiagnostic}
           </motion.h2>
@@ -479,7 +479,7 @@ export default function Quiz() {
               </svg>
               <h3 className="text-base font-bold text-white">Seu plano para evoluir</h3>
             </div>
-            <div className="p-8 prose max-w-none prose-headings:font-bold prose-a:text-[#2c9be3] hover:prose-a:text-[#1d81c2]">
+            <div className="p-5 sm:p-8 prose max-w-none prose-headings:font-bold prose-a:text-[#2c9be3] hover:prose-a:text-[#1d81c2]">
               <ReactMarkdown>{actionPlan}</ReactMarkdown>
               {isPlanUpdating && (
                 <p className="not-prose mt-5 text-xs font-medium text-slate-400">
