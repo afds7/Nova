@@ -56,7 +56,7 @@ export default function RecommendationsPage() {
         </div>
       </header>
 
-      <div className="mx-auto max-w-6xl space-y-5 px-5 pt-6 md:px-8 md:pt-9">
+      <div className="mx-auto max-w-6xl space-y-5 px-4 pt-6 sm:px-5 md:px-8 md:pt-9">
         <section className="rounded-2xl bg-gradient-to-br from-[#2c9be3] to-[#1d81c2] p-6 text-white md:p-9">
           <p className="text-xs font-bold uppercase tracking-[0.18em] text-blue-100">Explorar caminhos</p>
           <h1 className="mt-2 text-2xl font-black md:text-4xl">Possibilidades para o seu próximo passo</h1>

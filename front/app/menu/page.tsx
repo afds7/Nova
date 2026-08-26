@@ -144,11 +144,11 @@ export function DashboardPage() {
 
       {/* ── Header ──────────────────────────────────────────────────── */}
       <header className="bg-white border-b border-slate-100 sticky top-0 z-20">
-        <div className="max-w-6xl mx-auto px-4 sm:px-5 md:px-8 lg:px-10 py-3 sm:py-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="max-w-6xl mx-auto px-4 sm:px-5 md:px-8 lg:px-10 py-3 sm:py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
           <div className="relative h-14 w-44 overflow-hidden md:h-16 md:w-48">
             <img src="/logo-nova.png" alt="NOVA Hub" width={650} height={366} className="absolute left-[-167px] top-[-112px] max-w-none origin-top-left scale-[0.8]" />
           </div>
-          <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end sm:gap-3">
+          <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
             <button type="button" onClick={() => router.push('/recomendacoes')} className="rounded-lg bg-blue-50 px-2.5 py-2 text-[11px] font-bold text-[#2c9be3] hover:bg-blue-100 sm:px-3 sm:text-xs">
               Explorar
             </button>
@@ -170,7 +170,7 @@ export function DashboardPage() {
         </div>
       </header>
 
-      <div className="max-w-6xl mx-auto w-full px-5 md:px-8 lg:px-10 pt-5 md:pt-8 grid md:grid-cols-2 gap-5 md:gap-6 items-start">
+      <div className="max-w-6xl mx-auto w-full px-4 sm:px-5 md:px-8 lg:px-10 pt-5 md:pt-8 grid md:grid-cols-2 gap-5 md:gap-6 items-start">
 
         {/* ── Card IEP ──────────────────────────────────────────────── */}
         <motion.div
@@ -179,7 +179,7 @@ export function DashboardPage() {
           transition={{ duration: 0.4 }}
           className={`rounded-2xl border-2 p-5 md:p-7 md:col-span-1 ${diagStyle.bg} ${diagStyle.border}`}
         >
-          <div className="flex items-start justify-between">
+          <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Seu preparo</p>
               <div className="flex items-baseline gap-1.5">
@@ -191,7 +191,7 @@ export function DashboardPage() {
               </div>
               <p className="mt-2 max-w-[15rem] text-[11px] leading-relaxed text-slate-500">Leitura atual com base nas últimas ações registradas.</p>
             </div>
-            <div className="text-right">
+            <div className="text-left sm:text-right">
               <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Seu diferencial</p>
               <div className="flex items-baseline gap-1 justify-end">
                 <span className="text-3xl font-black text-slate-700">{data.iev_score}</span>
@@ -408,7 +408,7 @@ export function DashboardPage() {
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.26 }}
-          className="grid grid-cols-2 gap-4 md:gap-6 md:col-span-2"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:gap-6 md:col-span-2"
         >
           {[
             {

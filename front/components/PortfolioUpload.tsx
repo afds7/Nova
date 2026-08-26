@@ -93,11 +93,11 @@ export default function PortfolioUpload() {
         <div className="space-y-3">
           <input value={titulo} onChange={(event) => setTitulo(event.target.value)} required maxLength={255} placeholder="Título da evidência" className="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#2c9be3]" />
           <textarea value={descricao} onChange={(event) => setDescricao(event.target.value)} maxLength={2000} placeholder="Descrição rápida (opcional)" rows={3} className="w-full resize-none rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-800 outline-none transition focus:border-[#2c9be3]" />
-          <div className="flex gap-3">
-            <select value={tipo} onChange={(event) => setTipo(event.target.value as EvidenceType)} className="min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 outline-none focus:border-[#2c9be3]">
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <select value={tipo} onChange={(event) => setTipo(event.target.value as EvidenceType)} className="w-full min-w-0 flex-1 rounded-xl border border-slate-200 bg-white px-3 py-3 text-sm text-slate-700 outline-none focus:border-[#2c9be3] sm:w-auto">
               {Object.entries(typeLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
             </select>
-            <button type="submit" disabled={!file || !titulo.trim() || uploadProgress !== null} className="rounded-xl bg-[#2c9be3] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#2188ca] disabled:cursor-not-allowed disabled:opacity-50">
+            <button type="submit" disabled={!file || !titulo.trim() || uploadProgress !== null} className="w-full rounded-xl bg-[#2c9be3] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#2188ca] disabled:cursor-not-allowed disabled:opacity-50 sm:w-auto">
               {uploadProgress === null ? 'Adicionar' : `${uploadProgress}%`}
             </button>
           </div>
