@@ -6,6 +6,7 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Quiz from '../components/Quiz';
 import LandingPage from '../components/LandingPage';
+import NovaLogo from '../components/NovaLogo';
 import { useQuizStore } from '../store/useQuizStore';
 
 type AppState = 'loading' | 'landing' | 'quiz';
@@ -110,15 +111,7 @@ export default function Home() {
 
       {/* Header com logo */}
       <header className="absolute top-0 left-0 p-3 sm:p-5 md:p-7 z-10">
-        <div className="relative h-24 w-56 overflow-hidden">
-          <img
-            src="/logo-nova.png"
-            alt="Logo NOVA Hub"
-            width={650}
-            height={366}
-            className="absolute left-[-220px] top-[-145px] max-w-none"
-          />
-        </div>
+        <NovaLogo />
       </header>
 
       {/* Quiz */}

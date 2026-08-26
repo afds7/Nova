@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { useRecommendationsStore, RecommendationType } from '../../store/useRecommendationsStore';
+import NovaLogo from '../../components/NovaLogo';
 
 const labels: Record<RecommendationType, string> = {
   curso: 'Cursos',
@@ -46,8 +47,8 @@ export default function RecommendationsPage() {
     <main className="min-h-screen bg-[#f1f5f9] pb-12">
       <header className="w-full border-b border-slate-100 bg-white">
         <div className="mx-auto flex max-w-6xl flex-col gap-3 px-4 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5 sm:py-4 md:px-8">
-          <Link href="/menu" className="relative h-24 w-56 overflow-hidden">
-            <img src="/logo-nova.png" alt="NOVA Hub" width={650} height={366} className="absolute left-[-220px] top-[-145px] max-w-none" />
+          <Link href="/menu" aria-label="Voltar ao menu">
+            <NovaLogo />
           </Link>
           <div className="flex w-full items-center justify-between gap-2 sm:w-auto sm:justify-end sm:gap-3">
             <Link href="/menu" className="rounded-lg bg-slate-100 px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-200">Voltar ao menu</Link>

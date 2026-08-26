@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useDashboardStore, CompetencyScore } from '../../store/useDashboardStore';
 import PortfolioUpload from '../../components/PortfolioUpload';
+import NovaLogo from '../../components/NovaLogo';
 import { useMissionFlowStore } from '../../store/useMissionFlowStore';
 
 // ── Helpers ────────────────────────────────────────────────────────────────
@@ -145,9 +146,7 @@ export function DashboardPage() {
       {/* ── Header ──────────────────────────────────────────────────── */}
       <header className="w-full bg-white border-b border-slate-100 sticky top-0 z-20">
         <div className="w-full min-w-0 max-w-6xl mx-auto px-4 sm:px-5 md:px-8 lg:px-10 py-3 sm:py-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-          <div className="relative h-24 w-56 overflow-hidden">
-            <img src="/logo-nova.png" alt="NOVA Hub" width={650} height={366} className="absolute left-[-220px] top-[-145px] max-w-none" />
-          </div>
+          <NovaLogo />
           <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
             <button type="button" onClick={() => router.push('/recomendacoes')} className="rounded-lg bg-blue-50 px-2.5 py-2 text-[11px] font-bold text-[#2c9be3] hover:bg-blue-100 sm:px-3 sm:text-xs">
               Explorar

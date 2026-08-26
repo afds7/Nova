@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import AuthModal from './AuthModal';
+import NovaLogo from './NovaLogo';
 
 interface LandingPageProps {
   onStart: () => void;
@@ -63,9 +64,7 @@ export default function LandingPage({ onStart }: LandingPageProps) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.4 }}
         >
-          <div className="relative h-24 w-56 overflow-hidden">
-            <img src="/logo-nova.png" alt="NOVA Hub" width={650} height={366} className="absolute left-[-220px] top-[-145px] max-w-none" />
-          </div>
+          <NovaLogo />
         </motion.div>
 
         <motion.button
