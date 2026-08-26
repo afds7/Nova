@@ -272,7 +272,8 @@ def generate_action_plan(data):
     try:
         openai_client = OpenAI(
             api_key=os.getenv("OPENAI_API_KEY"),
-            timeout=float(os.getenv('OPENAI_ASSESSMENT_TIMEOUT_SECONDS', '8')),
+            # O diagnóstico é interativo; o fallback precisa chegar antes do timeout do proxy.
+            timeout=float(os.getenv('OPENAI_ASSESSMENT_TIMEOUT_SECONDS', '3')),
             max_retries=0,
         )
         response = openai_client.chat.completions.create(

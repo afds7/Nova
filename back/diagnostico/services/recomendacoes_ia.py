@@ -119,7 +119,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
     try:
         client = OpenAI(
             api_key=os.getenv('OPENAI_API_KEY'),
-            timeout=float(os.getenv('OPENAI_RECOMMENDATIONS_TIMEOUT_SECONDS', '8')),
+            timeout=float(os.getenv('OPENAI_RECOMMENDATIONS_TIMEOUT_SECONDS', '3')),
             max_retries=0,
         )
         response = client.chat.completions.create(
