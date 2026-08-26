@@ -19,7 +19,8 @@ def missions_cache_key(profile_id: str) -> str:
 
 def assessment_cache_key(email: str) -> str:
     digest = hashlib.sha256(email.strip().lower().encode('utf-8')).hexdigest()
-    return f'nova:assessment:last:v1:{digest}'
+    # v2 invalida diagnósticos em cache que ainda continham recomendações genéricas.
+    return f'nova:assessment:last:v2:{digest}'
 
 
 def invalidate_profile_cache(profile_id: str) -> None:

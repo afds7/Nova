@@ -38,4 +38,5 @@ class RecommendationsView(APIView):
             'resumo': result['resumo'],
             'itens': result['itens'],
             'proximos_passos': result['proximos_passos'],
+            'comunidades': result.get('comunidades', []),
         })
