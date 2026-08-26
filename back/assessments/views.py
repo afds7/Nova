@@ -119,7 +119,7 @@ class LastAssessmentView(APIView):
         if cached:
             return Response(cached, status=status.HTTP_200_OK)
 
-        assessment = Assessment.objects.filter(email=email).first()
+        assessment = Assessment.objects.filter(email=email).order_by('-created_at').first()
         if not assessment:
             return Response(None, status=status.HTTP_404_NOT_FOUND)
 
@@ -145,6 +145,25 @@ class LastAssessmentView(APIView):
         }
         cache.set(assessment_cache_key(email), payload, 60)
         return Response(payload, status=status.HTTP_200_OK)
+
+
+class AssessmentRecommendationsView(APIView):
+    """Gera recomendações para o diagnóstico recém-criado, sem depender do e-mail."""
+
+    permission_classes = [AllowAny]
+
+    def get(self, request, assessment_id):
+        assessment = Assessment.objects.filter(id=assessment_id).first()
+        if not assessment:
+            return Response({'error': 'Diagnóstico não encontrado.'}, status=status.HTTP_404_NOT_FOUND)
+
+        return Response(gerar_recomendacoes({
+            'perfil_id': str(assessment.id),
+            'area': assessment.area,
+            'prioridade': assessment.weakest_point,
+            'pontos_fortes': [assessment.strongest_point],
+            'nivel_iep': assessment.iep_score,
+        }), status=status.HTTP_200_OK)
 
 
 class AssessmentPlanView(APIView):

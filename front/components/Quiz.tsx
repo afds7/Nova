@@ -127,13 +127,13 @@ export default function Quiz() {
     return () => { cancelled = true; };
   }, [currentStep, assessmentId, setActionPlan]);
 
-  // As sugestões são carregadas depois do resultado, sem atrasar a tela principal.
+  // As sugestões são vinculadas ao diagnóstico recém-criado, sem reaproveitar outro e-mail.
   useEffect(() => {
-    if (currentStep !== QUESTIONS.length + 2 || !localEmail || recommendations) return;
+    if (currentStep !== QUESTIONS.length + 2 || !assessmentId || recommendations) return;
 
     let cancelled = false;
     const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    fetch(`${apiUrl}/api/assessments/last/?email=${encodeURIComponent(localEmail)}`)
+    fetch(`${apiUrl}/api/assessments/${assessmentId}/recommendations/`)
       .then(async (response) => {
         if (!response.ok) return null;
         return response.json() as Promise<{ recommendations?: import('../store/useRecommendationsStore').RecommendationsData | null }>;
@@ -146,7 +146,7 @@ export default function Quiz() {
       });
 
     return () => { cancelled = true; };
-  }, [currentStep, localEmail, recommendations, setRecommendations]);
+  }, [currentStep, assessmentId, recommendations, setRecommendations]);
 
   // Guard: se currentStep for 0 (estado inicial antes da LandingPage transicionar), não renderiza nada
   if (currentStep === 0) return null;

@@ -25,6 +25,38 @@ def test_submit_diagnostic_creates_profile_objective_and_history(profile_factory
 
 
 @pytest.mark.django_db
+def test_new_diagnostic_recommendations_use_created_assessment(profile_factory, monkeypatch):
+    """O primeiro resultado usa o ID recém-criado, nunca o primeiro diagnóstico do e-mail."""
+    from assessments import views
+
+    monkeypatch.setattr(views, 'generate_action_plan', lambda data: 'Plano determinístico')
+    create = APIClient().post('/api/assessments/submit/', {
+        'name': 'Pessoa Nova', 'email': 'new-recommendations@example.com', 'password': 'senha-segura',
+        'area': 'Direito', 'iep_score': 70, 'iev_score': 60,
+        'diagnostic': 'Em evolução', 'strongest_point': 'Base Acadêmica',
+        'weakest_point': 'Visão Estratégica', 'gap': 4,
+    }, format='json')
+    assert create.status_code == 201
+
+    expected = {
+        'origem': 'fallback', 'resumo': 'Recomendação detalhada por área',
+        'itens': [{'tipo': 'faculdade', 'titulo': 'Direito — USP', 'descricao': 'x',
+                   'o_que_fazer': 'Compare a grade', 'como_fazer': 'Confira o ingresso',
+                   'por_que_pode_fazer_sentido': 'x', 'url': '', 'nivel': 'graduação',
+                   'estimativa_tempo': '5 anos', 'custo': 'pública', 'alcance': 'nacional',
+                   'modalidade': 'presencial', 'opcoes': ['USP']}],
+        'proximos_passos': ['Compare opções'], 'comunidades': [],
+    }
+    monkeypatch.setattr(views, 'gerar_recomendacoes', lambda context: expected)
+    recommendation = APIClient().get(
+        f"/api/assessments/{create.data['id']}/recommendations/"
+    )
+
+    assert recommendation.status_code == 200
+    assert recommendation.data['itens'][0]['titulo'] == 'Direito — USP'
+
+
+@pytest.mark.django_db
 def test_mission_suggestions_fallback_when_openai_fails(profile_factory, monkeypatch):
     profile = profile_factory()
     Competencia.objects.create(perfil=profile, nome='Comunicação Social', nivel=1)
