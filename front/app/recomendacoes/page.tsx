@@ -115,9 +115,9 @@ export default function RecommendationsPage() {
               <div className="mt-3 grid gap-2 md:grid-cols-3">{data.proximos_passos.map((step, index) => <div key={step} className="rounded-xl bg-white/80 p-4 text-sm leading-relaxed text-slate-600"><span className="font-black text-[#2c9be3]">0{index + 1}</span><p className="mt-2">{step}</p></div>)}</div>
             </section>
 
-            {data.comunidades.length > 0 && <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm md:p-7">
+            {(data.comunidades || []).length > 0 && <section className="rounded-2xl border border-slate-100 bg-white p-5 shadow-sm md:p-7">
               <p className="text-xs font-bold uppercase tracking-widest text-[#2c9be3]">Comunidades e recursos extras</p>
-              <div className="mt-3 grid gap-2 md:grid-cols-2">{data.comunidades.map((community) => <div key={community} className="rounded-xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-600">{community}</div>)}</div>
+              <div className="mt-3 grid gap-2 md:grid-cols-2">{(data.comunidades || []).map((community) => <div key={community} className="rounded-xl bg-slate-50 p-4 text-sm leading-relaxed text-slate-600">{community}</div>)}</div>
             </section>}
           </>
         )}
