@@ -1,8 +1,8 @@
 from __future__ import annotations
 
 from uuid import UUID
-
 import pytest
+from django.utils import timezone
 from rest_framework.test import APIClient
 
 from assessments.models import (
@@ -91,3 +91,28 @@ def test_publish_draft_is_explicit_and_soft_delete_preserves_record(profile_fact
     draft.ativo = False
     draft.save(update_fields=['ativo'])
     assert EvidenciaPortfolio.objects.filter(pk=draft.pk).exists()
+
+
+@pytest.mark.django_db
+def test_mission_engine_does_not_replace_completed_weekly_cycle(profile_factory):
+    """Após três conclusões no ciclo, nenhuma quarta missão é criada antes de 7 dias."""
+    from assessments.services import MotorDeMissoes
+
+    profile = profile_factory()
+    missions = [
+        Missao.objects.create(
+            titulo=f'Missão {index}',
+            competencias_desenvolvidas=['Comunicação Social'],
+        )
+        for index in range(3)
+    ]
+    for mission in missions:
+        MissaoAluno.objects.create(
+            perfil=profile,
+            missao=mission,
+            status='concluida',
+            concluida_em=timezone.now(),
+        )
+
+    assert MotorDeMissoes.recomendar(profile.id) == []
+    assert MissaoAluno.objects.filter(perfil=profile).count() == 3

@@ -66,6 +66,21 @@ class MotorDeMissoes:
         if len(atuais) >= cls.LIMITE_SUGESTOES:
             return atuais
 
+        # Um ciclo tem três missões e dura sete dias. Se o aluno concluiu
+        # todas as missões do ciclo atual, aguardamos o próximo ciclo em vez
+        # de substituir as tarefas imediatamente.
+        ciclo_inicio = timezone.now() - timedelta(days=7)
+        ciclo_atual = list(
+            MissaoAluno.objects
+            .filter(perfil=perfil, created_at__gte=ciclo_inicio)
+            .order_by('-created_at')[:cls.LIMITE_SUGESTOES]
+        )
+        if (
+            len(ciclo_atual) == cls.LIMITE_SUGESTOES
+            and all(item.status == 'concluida' for item in ciclo_atual)
+        ):
+            return []
+
         competencias_aluno = {
             cls._normalizar(competencia.nome): competencia.nivel
             for competencia in perfil.competencias.all()

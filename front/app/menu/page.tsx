@@ -53,10 +53,11 @@ function CompetencyBar({ competency, isPriority }: { competency: CompetencyScore
 
 function IEPDelta({ delta }: { delta: number | null }) {
   if (delta === null) return <span className="text-xs text-slate-400">Primeiro check-in</span>;
-  const isUp = delta >= 0;
+  const roundedDelta = Math.round(Number(delta));
+  const isUp = roundedDelta >= 0;
   return (
     <span className={`text-xs font-bold flex items-center gap-0.5 ${isUp ? 'text-emerald-600' : 'text-red-500'}`}>
-      {isUp ? '↑' : '↓'} {Math.abs(delta)} pontos desde o último check-in
+      {isUp ? '↑' : '↓'} {Math.abs(roundedDelta)} pontos desde o último check-in
     </span>
   );
 }
@@ -182,7 +183,7 @@ export function DashboardPage() {
             <div>
             <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Seu preparo</p>
               <div className="flex items-baseline gap-1.5">
-                <span className={`text-5xl font-black ${diagStyle.text}`}>{data.iep_score}</span>
+                <span className={`text-5xl font-black ${diagStyle.text}`}>{Math.round(Number(data.iep_score))}</span>
                 <span className="text-slate-400 text-sm">/100</span>
               </div>
               <div className="mt-1.5">
