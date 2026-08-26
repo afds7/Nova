@@ -10,6 +10,9 @@ export interface RecommendationItem {
   url: string;
   nivel: string;
   estimativa_tempo: string;
+  custo?: string;
+  alcance?: string;
+  modalidade?: string;
 }
 
 export interface RecommendationsData {

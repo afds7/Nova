@@ -127,6 +127,27 @@ export default function Quiz() {
     return () => { cancelled = true; };
   }, [currentStep, assessmentId, setActionPlan]);
 
+  // As sugestões são carregadas depois do resultado, sem atrasar a tela principal.
+  useEffect(() => {
+    if (currentStep !== QUESTIONS.length + 2 || !localEmail || recommendations) return;
+
+    let cancelled = false;
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+    fetch(`${apiUrl}/api/assessments/last/?email=${encodeURIComponent(localEmail)}`)
+      .then(async (response) => {
+        if (!response.ok) return null;
+        return response.json() as Promise<{ recommendations?: import('../store/useRecommendationsStore').RecommendationsData | null }>;
+      })
+      .then((data) => {
+        if (!cancelled && data?.recommendations) setRecommendations(data.recommendations);
+      })
+      .catch(() => {
+        // O diagnóstico continua disponível mesmo se as sugestões não carregarem.
+      });
+
+    return () => { cancelled = true; };
+  }, [currentStep, localEmail, recommendations, setRecommendations]);
+
   // Guard: se currentStep for 0 (estado inicial antes da LandingPage transicionar), não renderiza nada
   if (currentStep === 0) return null;
 
@@ -503,6 +524,10 @@ export default function Quiz() {
                 {recommendations.itens.slice(0, 3).map((item: RecommendationItem) => (
                   <article key={`${item.tipo}-${item.titulo}`} className="rounded-xl border border-slate-100 bg-slate-50 p-4">
                     <span className="text-[10px] font-bold uppercase tracking-wider text-[#2c9be3]">{item.tipo}</span>
+                    <div className="mt-2 flex flex-wrap gap-1.5 text-[10px] font-semibold text-slate-500">
+                      {item.custo && <span className="rounded-full bg-emerald-50 px-2 py-1">{item.custo}</span>}
+                      {item.alcance && <span className="rounded-full bg-blue-50 px-2 py-1">{item.alcance}</span>}
+                    </div>
                     <h4 className="mt-2 line-clamp-2 text-sm font-bold leading-snug text-slate-800">{item.titulo}</h4>
                     <p className="mt-2 line-clamp-3 text-xs leading-relaxed text-slate-500">{item.descricao}</p>
                     {item.url && <a href={item.url} target="_blank" rel="noreferrer" className="mt-3 inline-block text-xs font-bold text-[#2c9be3] hover:underline">Conhecer ↗</a>}

@@ -51,6 +51,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'url': 'https://emec.mec.gov.br/',
                 'nivel': 'exploracao',
                 'estimativa_tempo': 'Compare 2 ou 3 opções',
+                'custo': 'gratuito',
+                'alcance': 'nacional',
+                'modalidade': 'online',
             },
             {
                 'tipo': 'curso',
@@ -60,6 +63,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'url': f'https://www.coursera.org/search?query={area_query}',
                 'nivel': 'inicial',
                 'estimativa_tempo': '2 a 6 semanas',
+                'custo': 'gratuito e pago',
+                'alcance': 'internacional',
+                'modalidade': 'online',
             },
             {
                 'tipo': 'livro',
@@ -69,6 +75,33 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'url': 'https://designingyour.life/',
                 'nivel': 'todos',
                 'estimativa_tempo': 'Leitura gradual',
+                'custo': 'pago',
+                'alcance': 'internacional',
+                'modalidade': 'livro',
+            },
+            {
+                'tipo': 'curso',
+                'titulo': f'Escolas e cursos técnicos públicos em {area}',
+                'descricao': 'Consulte opções gratuitas de institutos federais, escolas técnicas e programas de extensão.',
+                'por_que_pode_fazer_sentido': 'Pode oferecer uma entrada acessível e prática na área antes de um investimento maior.',
+                'url': 'https://www.gov.br/mec/pt-br',
+                'nivel': 'inicial',
+                'estimativa_tempo': 'Compare inscrições e editais',
+                'custo': 'gratuito',
+                'alcance': 'nacional',
+                'modalidade': 'presencial ou online',
+            },
+            {
+                'tipo': 'faculdade',
+                'titulo': f'Universidades e bolsas para {area}',
+                'descricao': 'Pesquise bolsas, financiamentos e universidades públicas ou privadas reconhecidas.',
+                'por_que_pode_fazer_sentido': 'Amplia as opções de formação sem presumir um único orçamento ou modalidade.',
+                'url': 'https://acessounico.mec.gov.br/',
+                'nivel': 'formacao',
+                'estimativa_tempo': 'Pesquisa de médio prazo',
+                'custo': 'gratuito, bolsa ou pago',
+                'alcance': 'nacional',
+                'modalidade': 'presencial ou online',
             },
             {
                 'tipo': 'recurso',
@@ -78,6 +111,9 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'url': '',
                 'nivel': 'pratica',
                 'estimativa_tempo': 'Até 7 dias',
+                'custo': 'gratuito',
+                'alcance': 'qualquer',
+                'modalidade': 'autoguiado',
             },
         ],
         'proximos_passos': [
@@ -106,6 +142,9 @@ def _normalizar_itens(raw: Any, fallback: dict[str, Any]) -> list[dict[str, str]
             'url': str(item.get('url', ''))[:1000],
             'nivel': str(item.get('nivel', 'todos'))[:40],
             'estimativa_tempo': str(item.get('estimativa_tempo', ''))[:80],
+            'custo': str(item.get('custo', 'não informado'))[:60],
+            'alcance': str(item.get('alcance', 'não informado'))[:40],
+            'modalidade': str(item.get('modalidade', 'não informado'))[:80],
         })
     return itens or fallback['itens']
 
@@ -140,6 +179,8 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                         'Você é um orientador de possibilidades de formação. '
                         'Responda somente JSON válido. Nunca trate uma sugestão como obrigação ou diagnóstico. '
                         'Indique cursos, faculdades, livros, certificações e recursos que possam ser explorados. '
+                        'Monte uma lista equilibrada: inclua alternativas gratuitas, de baixo custo e pagas; '
+                        'opções nacionais e internacionais; modalidades online e presenciais quando fizer sentido. '
                         'Priorize links oficiais ou páginas de busca confiáveis e não invente URLs específicas.'
                     ),
                 },
@@ -154,7 +195,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                             'resumo': 'string',
                             'itens': 'array com 4 a 8 objetos',
                             'proximos_passos': 'array com 2 a 3 strings',
-                            'item': ['tipo', 'titulo', 'descricao', 'por_que_pode_fazer_sentido', 'url', 'nivel', 'estimativa_tempo'],
+                            'item': ['tipo', 'titulo', 'descricao', 'por_que_pode_fazer_sentido', 'url', 'nivel', 'estimativa_tempo', 'custo', 'alcance', 'modalidade'],
                         },
                     }, ensure_ascii=False),
                 },
