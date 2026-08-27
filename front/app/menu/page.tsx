@@ -54,11 +54,14 @@ function CompetencyBar({ competency, isPriority }: { competency: CompetencyScore
 
 function IEPDelta({ delta }: { delta: number | null }) {
   if (delta === null) return <span className="text-xs text-slate-400">Primeiro check-in</span>;
-  const roundedDelta = Math.round(Number(delta));
-  const isUp = roundedDelta >= 0;
+  const wholePointDelta = Math.floor(Number(delta));
+
+  // Pequenas evoluções ficam no cálculo interno, mas só ganham destaque ao completar 1 ponto.
+  if (wholePointDelta < 1) return null;
+
   return (
-    <span className={`text-xs font-bold flex items-center gap-0.5 ${isUp ? 'text-emerald-600' : 'text-red-500'}`}>
-      {isUp ? '↑' : '↓'} {Math.abs(roundedDelta)} pontos desde o último check-in
+    <span className="text-xs font-bold flex items-center gap-0.5 text-emerald-600">
+      ↑ {wholePointDelta} {wholePointDelta === 1 ? 'ponto' : 'pontos'} desde o último check-in
     </span>
   );
 }
@@ -149,7 +152,7 @@ export function DashboardPage() {
           <NovaLogo />
           <div className="flex w-full items-center justify-end gap-2 sm:w-auto sm:gap-3">
             <button type="button" onClick={() => router.push('/recomendacoes')} className="rounded-lg bg-blue-50 px-2.5 py-2 text-[11px] font-bold text-[#2c9be3] hover:bg-blue-100 sm:px-3 sm:text-xs">
-              Explorar
+              Ver sugestões
             </button>
             <div className="text-right">
               <p className="text-sm font-bold text-slate-800 leading-none">{firstName}</p>
