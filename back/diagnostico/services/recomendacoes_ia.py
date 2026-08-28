@@ -128,13 +128,89 @@ def _opcoes_por_area(area: str, tipo: str) -> list[str]:
     return []
 
 
+def _fallback_catalogo(area: str, competencia: str) -> list[dict[str, Any]]:
+    """Curadoria utilizável mesmo quando Tavily/OpenAI estiverem indisponíveis."""
+    return [
+        {
+            'tipo': 'faculdade',
+            'titulo': f'{area} — USP',
+            'descricao': f'Graduação da USP relacionada a {area}, com formação acadêmica e possibilidades de pesquisa.',
+            'por_que_pode_fazer_sentido': f'Pode ajudar a transformar seu interesse por {area} em uma formação estruturada.',
+            'o_que_fazer': f'Verifique quais graduações da USP se conectam diretamente a {area}.',
+            'como_fazer': 'Consulte a página institucional, confira a forma de ingresso, a grade curricular e o calendário vigente.',
+            'opcoes': ['USP', 'FUVEST', 'SiSU'], 'url': 'https://www5.usp.br', 'nivel': 'graduação',
+            'estimativa_tempo': '4 a 5 anos', 'custo': 'pública', 'alcance': 'nacional', 'modalidade': 'presencial',
+        },
+        {
+            'tipo': 'faculdade',
+            'titulo': f'{area} — Univesp',
+            'descricao': f'Opção pública de ensino a distância para estudar temas ligados a {area} com mais flexibilidade.',
+            'por_que_pode_fazer_sentido': 'Pode combinar com uma rotina que exige flexibilidade de horário e deslocamento.',
+            'o_que_fazer': 'Compare os cursos e polos disponíveis que tenham relação com seu objetivo.',
+            'como_fazer': 'Leia a matriz curricular, confirme o polo, os encontros e o edital de ingresso mais recente.',
+            'opcoes': ['Univesp', 'Polo regional', 'Vestibular'], 'url': 'https://www.univesp.br', 'nivel': 'graduação',
+            'estimativa_tempo': '4 anos', 'custo': 'pública', 'alcance': 'nacional', 'modalidade': 'EAD',
+        },
+        {
+            'tipo': 'faculdade',
+            'titulo': f'{area} — PUC-SP',
+            'descricao': f'Alternativa privada com cursos e projetos que podem ampliar sua preparação em {area}.',
+            'por_que_pode_fazer_sentido': 'Permite comparar uma opção privada, bolsas e diferentes formatos de formação.',
+            'o_que_fazer': 'Localize o curso equivalente e compare grade, turno, mensalidade e bolsas.',
+            'como_fazer': 'Confira o processo seletivo, ProUni, FIES e as condições atuais diretamente com a instituição.',
+            'opcoes': ['PUC-SP', 'ProUni', 'FIES'], 'url': 'https://www.pucsp.br', 'nivel': 'graduação',
+            'estimativa_tempo': '4 a 5 anos', 'custo': 'privada, com bolsas', 'alcance': 'nacional', 'modalidade': 'presencial',
+        },
+        {
+            'tipo': 'curso',
+            'titulo': f'Fundamentos de {area} — Fundação Bradesco',
+            'descricao': 'Trilha online gratuita para experimentar conceitos iniciais e organizar uma rotina de estudos.',
+            'por_que_pode_fazer_sentido': f'Ajuda a testar {area} sem investimento inicial e a fortalecer {competencia}.',
+            'o_que_fazer': f'Escolha uma trilha introdutória relacionada a {area}.',
+            'como_fazer': 'Conclua um curso curto, faça as atividades e guarde o certificado ou projeto final.',
+            'opcoes': ['Fundação Bradesco', 'Certificado', 'Curso gratuito'], 'url': 'https://www.ev.org.br', 'nivel': 'inicial',
+            'estimativa_tempo': '10 a 20 horas', 'custo': 'gratuito', 'alcance': 'nacional', 'modalidade': 'online',
+        },
+        {
+            'tipo': 'curso',
+            'titulo': f'Especialização em {area} — Coursera',
+            'descricao': 'Cursos de universidades e empresas internacionais, com conteúdo aberto e certificados opcionais.',
+            'por_que_pode_fazer_sentido': f'Pode ampliar sua visão de {area} e oferecer prática para desenvolver {competencia}.',
+            'o_que_fazer': f'Compare duas trilhas de {area} e escolha uma aula inicial.',
+            'como_fazer': 'Verifique idioma, carga horária e certificado; assista ao conteúdo aberto antes de decidir pagar.',
+            'opcoes': ['Coursera', 'edX', 'Auditar gratuitamente'], 'url': 'https://www.coursera.org', 'nivel': 'inicial a avançado',
+            'estimativa_tempo': '4 a 12 semanas', 'custo': 'gratuito ou pago', 'alcance': 'internacional', 'modalidade': 'online',
+        },
+        {
+            'tipo': 'livro',
+            'titulo': f'Introdução a {area}',
+            'descricao': f'Procure uma edição introdutória de {area} em biblioteca pública, universitária ou livraria.',
+            'por_que_pode_fazer_sentido': f'Pode criar vocabulário inicial para entender se {area} conversa com seu objetivo.',
+            'o_que_fazer': f'Selecione uma obra introdutória de {area} e leia o sumário antes de começar.',
+            'como_fazer': 'Leia um capítulo por semana e anote três conceitos que gostaria de aprofundar.',
+            'opcoes': ['Biblioteca pública', 'Biblioteca universitária', 'Livraria'], 'url': '', 'nivel': 'introdutório',
+            'estimativa_tempo': '6 a 10 semanas', 'custo': 'pago ou biblioteca', 'alcance': 'nacional', 'modalidade': 'livro',
+        },
+        {
+            'tipo': 'livro',
+            'titulo': f'Manual técnico de {area}',
+            'descricao': f'Escolha um manual de referência de {area} usado em disciplinas introdutórias ou profissionais.',
+            'por_que_pode_fazer_sentido': f'Oferece um próximo nível de profundidade depois de explorar os fundamentos de {area}.',
+            'o_que_fazer': f'Compare o sumário de dois manuais técnicos de {area}.',
+            'como_fazer': 'Leia uma seção ligada a {competencia} e transforme o conteúdo em uma pergunta ou exercício prático.',
+            'opcoes': ['Biblioteca universitária', 'E-book', 'Livraria'], 'url': '', 'nivel': 'avançado',
+            'estimativa_tempo': 'Leitura gradual', 'custo': 'pago ou biblioteca', 'alcance': 'internacional', 'modalidade': 'livro',
+        },
+    ]
+
+
 def _cache_key(context: dict[str, Any]) -> str:
     digest = hashlib.sha256(
         json.dumps(context, ensure_ascii=False, sort_keys=True).encode('utf-8')
     ).hexdigest()
     # v2 invalida respostas genéricas que foram guardadas antes da curadoria específica.
     # v6 invalida respostas anteriores ao catálogo prioritário de faculdades.
-    return f'nova:recommendations:v9:{digest}'
+    return f'nova:recommendations:v10:{digest}'
 
 
 def _buscar_fontes(context: dict[str, Any]) -> dict[str, list[dict[str, str]]]:
@@ -212,7 +288,7 @@ def _itens_especificos(area: str, competencia: str) -> list[dict[str, Any]]:
             {'tipo': 'curso', 'titulo': 'Introduction to Public Speaking — Coursera, University of Washington', 'descricao': 'Curso internacional sobre estrutura, clareza e apresentação de mensagens para diferentes públicos.', 'o_que_fazer': 'Prepare e grave uma apresentação de três minutos sobre um tema de Comunicação Social.', 'como_fazer': 'Assista às aulas, escreva um roteiro, grave duas versões e compare clareza, tempo e adequação ao público.', 'opcoes': ['Coursera', 'University of Washington', 'Auditar gratuitamente'], 'por_que_pode_fazer_sentido': 'Desenvolve uma habilidade prática para jornalismo, apresentações, relações públicas e produção de conteúdo.', 'url': 'https://www.coursera.org/learn/public-speaking', 'nivel': 'inicial', 'estimativa_tempo': '4 semanas', 'custo': 'gratuito ou certificado pago', 'alcance': 'internacional', 'modalidade': 'online'},
             {'tipo': 'curso', 'titulo': 'Produção de Conteúdo para Mídias Digitais — Escola Virtual Fundação Bradesco', 'descricao': 'Curso nacional online para praticar planejamento, linguagem e produção de conteúdo digital.', 'o_que_fazer': 'Crie um calendário de conteúdo de uma semana para uma organização, projeto ou causa que você conheça.', 'como_fazer': 'Conclua as aulas, planeje três publicações e explique a escolha do público, formato e objetivo de cada uma.', 'opcoes': ['Escola Virtual Fundação Bradesco', 'Curso gratuito', 'Certificado'], 'por_que_pode_fazer_sentido': 'Oferece uma porta de entrada gratuita para praticar comunicação digital no contexto brasileiro.', 'url': 'https://www.ev.org.br/areas-de-interesse', 'nivel': 'inicial', 'estimativa_tempo': '10 a 20 horas', 'custo': 'gratuito', 'alcance': 'nacional', 'modalidade': 'online'},
         ]
-    return []
+    return _fallback_catalogo(area, competencia)
 
 
 def _fallback(context: dict[str, Any]) -> dict[str, Any]:
@@ -430,6 +506,9 @@ def _resposta_ia_esta_detalhada(raw: Any) -> bool:
     types = {str(item.get('tipo', '')).lower().strip() for item in valid}
     required = {'faculdade', 'livro', 'curso'}
     if not required.issubset(types) or len(valid) < 8:
+        return False
+    legacy_titles = ('Faculdades para estudar ', 'Cursos introdutórios de ')
+    if any(str(item.get('titulo', '')).startswith(legacy_titles) for item in valid):
         return False
     return all(
         str(item.get('o_que_fazer', '')).strip()

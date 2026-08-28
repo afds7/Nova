@@ -174,3 +174,23 @@ def test_openai_and_tavily_failure_returns_deterministic_plan(monkeypatch):
     })
 
     assert 'PRÓXIMOS PASSOS' in result
+
+
+def test_recommendations_fallback_is_named_and_actionable(monkeypatch):
+    """Mesmo sem APIs externas, contas novas não recebem o cartão genérico legado."""
+    from diagnostico.services.recomendacoes_ia import gerar_recomendacoes
+
+    monkeypatch.delenv('TAVILY_API_KEY', raising=False)
+    result = gerar_recomendacoes({
+        'perfil_id': 'fallback-regression-unique',
+        'area': 'Ciências Exatas',
+        'prioridade': 'Base Acadêmica',
+        'perfil_hint': 'interesse em matemática aplicada',
+        'pontos_fortes': ['Raciocínio lógico'],
+        'nivel_iep': 60,
+    })
+
+    assert result['origem'] == 'fallback'
+    assert result['itens']
+    assert all('Faculdades para estudar' not in item['titulo'] for item in result['itens'])
+    assert all(item['o_que_fazer'] and item['como_fazer'] for item in result['itens'])
