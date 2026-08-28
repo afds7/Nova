@@ -2,16 +2,16 @@ type NovaLogoProps = {
   className?: string;
 };
 
-/** Mantém o recorte da arte estável para que a logo não encolha nem seja cortada no mobile. */
+/** Recorta a área transparente da arte com proporções, evitando cortes em qualquer viewport. */
 export default function NovaLogo({ className = '' }: NovaLogoProps) {
   return (
-    <div className={`relative h-24 w-56 shrink-0 overflow-hidden ${className}`}>
+    <div className={`relative aspect-[425/168] w-56 shrink-0 overflow-hidden sm:w-72 ${className}`}>
       <img
         src="/logo-nova.png"
         alt="Logo NOVA Hub"
         width={650}
         height={366}
-        className="absolute left-[-184px] top-[-121px] h-auto w-[540px] max-w-none sm:left-[-220px] sm:top-[-145px] sm:w-[650px]"
+        className="absolute left-[-109.4%] top-[-72.7%] h-auto w-[321.2%] max-w-none"
       />
     </div>
   );
