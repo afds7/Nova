@@ -298,7 +298,7 @@ export function DashboardPage() {
               </div>
 
               {/* Stats */}
-              <div className="grid grid-cols-3 gap-2 mb-4">
+              <div className="grid grid-cols-1 gap-2 mb-4 sm:grid-cols-3">
                 {[
                   { label: 'Pendentes', value: data.mission_stats.pendentes, color: 'text-slate-500' },
                   { label: 'Em andamento', value: data.mission_stats.em_andamento, color: 'text-amber-500' },
