@@ -53,6 +53,26 @@ FACULDADES_PRIORITARIAS = [
     {'nome': 'Belas Artes', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.belasartes.br'},
     {'nome': 'ESPM', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.espm.br'},
     {'nome': 'Ibmec SP', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.ibmec.br'},
+    {'nome': 'MIT', 'categoria': 'internacional privada', 'local': 'Massachusetts/EUA', 'url': 'https://www.mit.edu'},
+    {'nome': 'Harvard', 'categoria': 'internacional privada', 'local': 'Massachusetts/EUA', 'url': 'https://www.harvard.edu'},
+    {'nome': 'Stanford', 'categoria': 'internacional privada', 'local': 'Califórnia/EUA', 'url': 'https://www.stanford.edu'},
+    {'nome': 'UC Berkeley', 'categoria': 'internacional pública', 'local': 'Califórnia/EUA', 'url': 'https://www.berkeley.edu'},
+    {'nome': 'Oxford', 'categoria': 'internacional pública', 'local': 'Oxford/Reino Unido', 'url': 'https://www.ox.ac.uk'},
+    {'nome': 'Cambridge', 'categoria': 'internacional pública', 'local': 'Cambridge/Reino Unido', 'url': 'https://www.cam.ac.uk'},
+    {'nome': 'ETH Zürich', 'categoria': 'internacional pública', 'local': 'Zurique/Suíça', 'url': 'https://ethz.ch'},
+    {'nome': 'Universidade de Toronto', 'categoria': 'internacional pública', 'local': 'Toronto/Canadá', 'url': 'https://www.utoronto.ca'},
+    {'nome': 'Universidade de Melbourne', 'categoria': 'internacional pública', 'local': 'Melbourne/Austrália', 'url': 'https://www.unimelb.edu.au'},
+    {'nome': 'Sorbonne', 'categoria': 'internacional pública', 'local': 'Paris/França', 'url': 'https://www.sorbonne-universite.fr'},
+    {'nome': 'Universidad de Buenos Aires', 'categoria': 'internacional pública', 'local': 'Buenos Aires/Argentina', 'url': 'https://www.uba.ar'},
+    {'nome': 'UNAM', 'categoria': 'internacional pública', 'local': 'Cidade do México/México', 'url': 'https://www.unam.mx'},
+    {'nome': 'Universidade de Lisboa', 'categoria': 'internacional pública', 'local': 'Lisboa/Portugal', 'url': 'https://www.ulisboa.pt'},
+    {'nome': 'Universidade do Porto', 'categoria': 'internacional pública', 'local': 'Porto/Portugal', 'url': 'https://www.up.pt'},
+    {'nome': 'Yale', 'categoria': 'internacional privada', 'local': 'Connecticut/EUA', 'url': 'https://www.yale.edu'},
+    {'nome': 'Princeton', 'categoria': 'internacional privada', 'local': 'Nova Jersey/EUA', 'url': 'https://www.princeton.edu'},
+    {'nome': 'Columbia', 'categoria': 'internacional privada', 'local': 'Nova York/EUA', 'url': 'https://www.columbia.edu'},
+    {'nome': 'NYU', 'categoria': 'internacional privada', 'local': 'Nova York/EUA', 'url': 'https://www.nyu.edu'},
+    {'nome': 'Caltech', 'categoria': 'internacional privada', 'local': 'Califórnia/EUA', 'url': 'https://www.caltech.edu'},
+    {'nome': 'Imperial College London', 'categoria': 'internacional privada', 'local': 'Londres/Reino Unido', 'url': 'https://www.imperial.ac.uk'},
 ]
 
 CURSOS_PRIORITARIOS = [
@@ -75,6 +95,18 @@ CURSOS_PRIORITARIOS = [
     {'nome': 'AWS Skill Builder', 'perfil': 'trilhas gratuitas e pagas', 'url': 'https://explore.skillbuilder.aws'},
     {'nome': 'Univesp', 'perfil': 'nacional, cursos livres gratuitos', 'url': 'https://www.univesp.br'},
     {'nome': 'USP for the world', 'perfil': 'cursos em português na Coursera', 'url': 'https://www.coursera.org/usp'},
+    {'nome': 'MIT OpenCourseWare', 'perfil': 'internacional e gratuito', 'url': 'https://ocw.mit.edu'},
+    {'nome': 'Harvard Online', 'perfil': 'internacional, opções gratuitas e pagas', 'url': 'https://pll.harvard.edu'},
+    {'nome': 'Stanford Online', 'perfil': 'internacional, opções gratuitas e pagas', 'url': 'https://online.stanford.edu'},
+    {'nome': 'Open Yale Courses', 'perfil': 'internacional e gratuito', 'url': 'https://oyc.yale.edu'},
+    {'nome': 'FutureLearn', 'perfil': 'internacional, opções gratuitas e pagas', 'url': 'https://www.futurelearn.com'},
+    {'nome': 'Alison', 'perfil': 'internacional, cursos gratuitos e pagos', 'url': 'https://alison.com'},
+    {'nome': 'OpenLearn', 'perfil': 'internacional e gratuito', 'url': 'https://www.open.edu/openlearn'},
+    {'nome': 'Codecademy', 'perfil': 'internacional, parte gratuita', 'url': 'https://www.codecademy.com'},
+    {'nome': 'Udacity', 'perfil': 'internacional, cursos livres e pagos', 'url': 'https://www.udacity.com'},
+    {'nome': 'Duolingo', 'perfil': 'internacional, idiomas com opção gratuita', 'url': 'https://www.duolingo.com'},
+    {'nome': 'IBM SkillsBuild', 'perfil': 'internacional e gratuito', 'url': 'https://skillsbuild.org'},
+    {'nome': 'Cisco Networking Academy', 'perfil': 'internacional, opções gratuitas e pagas', 'url': 'https://www.netacad.com'},
 ]
 
 
@@ -102,7 +134,7 @@ def _cache_key(context: dict[str, Any]) -> str:
     ).hexdigest()
     # v2 invalida respostas genéricas que foram guardadas antes da curadoria específica.
     # v6 invalida respostas anteriores ao catálogo prioritário de faculdades.
-    return f'nova:recommendations:v7:{digest}'
+    return f'nova:recommendations:v9:{digest}'
 
 
 def _buscar_fontes(context: dict[str, Any]) -> dict[str, list[dict[str, str]]]:
@@ -121,6 +153,7 @@ def _buscar_fontes(context: dict[str, Any]) -> dict[str, list[dict[str, str]]]:
         'livros': [
             f'melhores livros introdutórios e avançados para começar em {area}',
             f'livros {area} recomendados por profissionais {perfil_hint}',
+            f'livros de {area} fundamentos prática carreira biografia leitura acessível recomendados',
         ],
         'cursos': [
             f'curso gratuito {area} certificado 2026',
@@ -375,7 +408,8 @@ def _normalizar_itens(raw: Any, fallback: dict[str, Any]) -> list[dict[str, str]
             'titulo': str(item['titulo'])[:180],
             'descricao': str(item.get('descricao', ''))[:500],
             'por_que_pode_fazer_sentido': str(item.get('por_que_pode_fazer_sentido', ''))[:500],
-            'url': str(item.get('url', ''))[:1000],
+            # Livros são exibidos apenas com nome e resumo, sem links externos.
+            'url': '' if tipo == 'livro' else str(item.get('url', ''))[:1000],
             'nivel': str(item.get('nivel', 'todos'))[:40],
             'estimativa_tempo': str(item.get('estimativa_tempo', ''))[:80],
             'custo': str(item.get('custo', 'não informado'))[:60],
@@ -422,6 +456,11 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
         return cached
 
     fallback = _fallback(safe_context)
+    # Mantém a regra de produto também no fallback: livro não possui link.
+    fallback['itens'] = [
+        {**item, 'url': ''} if item.get('tipo') == 'livro' else item
+        for item in fallback['itens']
+    ]
     faculdades_prioritarias = [
         f"{item['nome']} — {item['categoria']} — {item['local']} — {item['url']}"
         for item in FACULDADES_PRIORITARIAS
@@ -453,6 +492,8 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                         'Priorize as instituições do catálogo oficial fornecido no contexto quando elas oferecerem o curso escolhido; '
                         'não substitua esse catálogo por e-MEC, gov.br ou um agregador como recomendação principal. '
                         'Misture livro introdutório, técnico/avançado e leitura ligada ao interesse do perfil. '
+                        'Para livros, varie autores, níveis e estilos (didático, técnico, prático, biográfico ou acessível), '
+                        'evite repetir títulos padrão e retorne somente título e resumo; o campo url de livros deve ser vazio. '
                         'Inclua curso gratuito, pago e ligado ao interesse específico. '
                         'Toda sugestão é uma possibilidade, nunca uma obrigação ou diagnóstico. '
                         'Se uma fonte não comprovar um detalhe, escreva que ele precisa ser confirmado na instituição.'
@@ -470,7 +511,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                             'itens': 'array com 5 a 8 faculdades, 3 a 5 livros e 3 a 5 cursos/certificações',
                             'proximos_passos': 'array com 6 a 10 ações em ordem cronológica, até matrícula e início das aulas',
                             'comunidades': 'array com 2 a 5 fóruns, associações, eventos ou grupos específicos da área',
-                            'item': ['tipo', 'titulo', 'descricao', 'o_que_fazer', 'como_fazer', 'opcoes', 'por_que_pode_fazer_sentido', 'url', 'nivel', 'estimativa_tempo', 'custo', 'alcance', 'modalidade'],
+                            'item': ['tipo', 'titulo', 'descricao', 'o_que_fazer', 'como_fazer', 'opcoes', 'por_que_pode_fazer_sentido', 'url (vazio para livros)', 'nivel', 'estimativa_tempo', 'custo', 'alcance', 'modalidade'],
                         },
                         'fontes_tavily': fontes,
                         'instituicoes_prioritarias_do_produto': faculdades_prioritarias,
