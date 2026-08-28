@@ -25,6 +25,58 @@ def _bounded_timeout() -> float:
 
 TIPOS = {'curso', 'faculdade', 'livro', 'certificacao', 'recurso'}
 
+# Instituições prioritárias para as recomendações de graduação. A IA deve
+# validar a oferta do curso nas fontes consultadas antes de sugerir uma opção.
+FACULDADES_PRIORITARIAS = [
+    {'nome': 'USP', 'categoria': 'pública estadual', 'local': 'São Paulo/SP', 'url': 'https://www5.usp.br'},
+    {'nome': 'Unicamp', 'categoria': 'pública estadual', 'local': 'Campinas/SP', 'url': 'https://www.unicamp.br'},
+    {'nome': 'Unesp', 'categoria': 'pública estadual', 'local': 'São Paulo e interior/SP', 'url': 'https://www2.unesp.br'},
+    {'nome': 'Fatec', 'categoria': 'pública estadual', 'local': 'São Paulo e interior/SP', 'url': 'https://www.fatecsp.br'},
+    {'nome': 'Univesp', 'categoria': 'pública estadual', 'local': 'São Paulo/SP', 'url': 'https://www.univesp.br'},
+    {'nome': 'UFSCar', 'categoria': 'pública federal', 'local': 'São Carlos/SP', 'url': 'https://www.ufscar.br'},
+    {'nome': 'Unifesp', 'categoria': 'pública federal', 'local': 'São Paulo/SP', 'url': 'https://www.unifesp.br'},
+    {'nome': 'UFABC', 'categoria': 'pública federal', 'local': 'Santo André/Diadema/SP', 'url': 'https://www.ufabc.edu.br'},
+    {'nome': 'UNIFESSPA', 'categoria': 'pública federal', 'local': 'Marabá/PA', 'url': 'https://www.unifesspa.edu.br'},
+    {'nome': 'FEMA', 'categoria': 'privada', 'local': 'Assis/SP', 'url': 'https://www.fema.edu.br'},
+    {'nome': 'PUC-SP', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.pucsp.br'},
+    {'nome': 'PUC-Campinas', 'categoria': 'privada', 'local': 'Campinas/SP', 'url': 'https://www.puc-campinas.edu.br'},
+    {'nome': 'Mackenzie', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.mackenzie.br'},
+    {'nome': 'FGV-SP', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.fgv.br'},
+    {'nome': 'Insper', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.insper.edu.br'},
+    {'nome': 'FIAP', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.fiap.com.br'},
+    {'nome': 'Anhembi Morumbi', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://portal.anhembi.br'},
+    {'nome': 'UNIP', 'categoria': 'privada', 'local': 'Brasil', 'url': 'https://www.unip.br'},
+    {'nome': 'Cruzeiro do Sul', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.cruzeirodosul.edu.br'},
+    {'nome': 'UMC', 'categoria': 'privada', 'local': 'Mogi das Cruzes/SP', 'url': 'https://www.umc.br'},
+    {'nome': 'São Judas', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.saojudas.br'},
+    {'nome': 'Uninove', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.uninove.br'},
+    {'nome': 'Belas Artes', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.belasartes.br'},
+    {'nome': 'ESPM', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.espm.br'},
+    {'nome': 'Ibmec SP', 'categoria': 'privada', 'local': 'São Paulo/SP', 'url': 'https://www.ibmec.br'},
+]
+
+CURSOS_PRIORITARIOS = [
+    {'nome': 'Coursera', 'perfil': 'internacional, cursos gratuitos e pagos', 'url': 'https://www.coursera.org'},
+    {'nome': 'edX', 'perfil': 'internacional, cursos gratuitos e pagos', 'url': 'https://www.edx.org'},
+    {'nome': 'Khan Academy', 'perfil': 'gratuito', 'url': 'https://www.khanacademy.org'},
+    {'nome': 'FGV Online', 'perfil': 'gratuito', 'url': 'https://educacao-executiva.fgv.br/cursos-online-gratuitos'},
+    {'nome': 'Fundação Bradesco', 'perfil': 'gratuito e com certificado', 'url': 'https://www.ev.org.br'},
+    {'nome': 'SENAI', 'perfil': 'nacional, cursos gratuitos e pagos', 'url': 'https://www.senai.br'},
+    {'nome': 'Sebrae', 'perfil': 'gratuito e voltado a negócios', 'url': 'https://sebrae.com.br/sites/PortalSebrae/cursosonline'},
+    {'nome': 'Google Actívate / Grow with Google', 'perfil': 'gratuito', 'url': 'https://learndigital.withgoogle.com/digitalgarage'},
+    {'nome': 'Alura', 'perfil': 'pago, com trilhas gratuitas', 'url': 'https://www.alura.com.br'},
+    {'nome': 'freeCodeCamp', 'perfil': 'gratuito', 'url': 'https://www.freecodecamp.org'},
+    {'nome': 'Udemy', 'perfil': 'cursos gratuitos e pagos', 'url': 'https://www.udemy.com/courses/free'},
+    {'nome': 'Class Central', 'perfil': 'busca cursos gratuitos de universidades', 'url': 'https://www.classcentral.com'},
+    {'nome': 'Fundação Estudar', 'perfil': 'gratuito', 'url': 'https://fundacaoestudar.org.br'},
+    {'nome': 'Politize!', 'perfil': 'gratuito', 'url': 'https://www.politize.com.br'},
+    {'nome': 'Escola Virtual FGV', 'perfil': 'gratuito e com certificado', 'url': 'https://educacao-executiva.fgv.br'},
+    {'nome': 'Microsoft Learn', 'perfil': 'gratuito', 'url': 'https://learn.microsoft.com'},
+    {'nome': 'AWS Skill Builder', 'perfil': 'trilhas gratuitas e pagas', 'url': 'https://explore.skillbuilder.aws'},
+    {'nome': 'Univesp', 'perfil': 'nacional, cursos livres gratuitos', 'url': 'https://www.univesp.br'},
+    {'nome': 'USP for the world', 'perfil': 'cursos em português na Coursera', 'url': 'https://www.coursera.org/usp'},
+]
+
 
 def _opcoes_por_area(area: str, tipo: str) -> list[str]:
     """Oferece pontos de partida concretos mesmo quando a IA está indisponível."""
@@ -36,9 +88,9 @@ def _opcoes_por_area(area: str, tipo: str) -> list[str]:
     if tipo == 'faculdade' and any(term in normalized for term in ('engenharia', 'biologia', 'saúde')):
         return ['USP', 'UNESP', 'PUC']
     if tipo == 'faculdade':
-        return ['Universidade pública da sua região', 'São Judas', 'Estácio']
+        return ['USP', 'Unicamp', 'Unesp', 'São Judas', 'PUC-SP', 'UNIP']
     if tipo == 'curso':
-        return ['Escola Virtual Fundação Bradesco', 'Coursera', 'edX']
+        return ['Coursera', 'edX', 'Fundação Bradesco', 'FGV Online', 'SENAI', 'Sebrae']
     if tipo == 'livro':
         return ['Biblioteca pública ou universitária', 'e-book', 'livraria']
     return []
@@ -49,7 +101,8 @@ def _cache_key(context: dict[str, Any]) -> str:
         json.dumps(context, ensure_ascii=False, sort_keys=True).encode('utf-8')
     ).hexdigest()
     # v2 invalida respostas genéricas que foram guardadas antes da curadoria específica.
-    return f'nova:recommendations:v5:{digest}'
+    # v6 invalida respostas anteriores ao catálogo prioritário de faculdades.
+    return f'nova:recommendations:v7:{digest}'
 
 
 def _buscar_fontes(context: dict[str, Any]) -> dict[str, list[dict[str, str]]]:
@@ -143,17 +196,17 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
         'itens': specific_items or [
             {
                 'tipo': 'faculdade',
-                'titulo': f'Graduações relacionadas a {area}',
-                'descricao': 'Compare cursos, modalidades e instituições no cadastro oficial do MEC.',
+                'titulo': f'Faculdades para estudar {area}',
+                'descricao': f'Compare a oferta de {area} nas instituições prioritárias do NOVA e confirme a modalidade disponível.',
                 'por_que_pode_fazer_sentido': f'Pode ajudar a conectar seu interesse em {area} com uma formação estruturada.',
-                'url': 'https://emec.mec.gov.br/',
+                'url': 'https://www5.usp.br',
                 'nivel': 'exploracao',
                 'estimativa_tempo': 'Compare 2 ou 3 opções',
                 'custo': 'gratuito',
                 'alcance': 'nacional',
                 'modalidade': 'online',
                 'o_que_fazer': f'Liste graduações de {area} e compare a grade curricular antes de escolher.',
-                'como_fazer': 'Separe duas opções públicas, duas privadas e confira duração, modalidade, bolsas e reconhecimento no e-MEC.',
+                'como_fazer': f'Abra os sites institucionais, confirme se oferecem {area}, compare duração, modalidade, bolsas e processo seletivo.',
                 'opcoes': _opcoes_por_area(area, 'faculdade'),
             },
             {
@@ -206,7 +259,7 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
                 'titulo': f'Universidades e bolsas para {area}',
                 'descricao': 'Pesquise bolsas, financiamentos e universidades públicas ou privadas reconhecidas.',
                 'por_que_pode_fazer_sentido': 'Amplia as opções de formação sem presumir um único orçamento ou modalidade.',
-                'url': 'https://acessounico.mec.gov.br/',
+                'url': 'https://www.univesp.br',
                 'nivel': 'formacao',
                 'estimativa_tempo': 'Pesquisa de médio prazo',
                 'custo': 'gratuito, bolsa ou pago',
@@ -369,6 +422,14 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
         return cached
 
     fallback = _fallback(safe_context)
+    faculdades_prioritarias = [
+        f"{item['nome']} — {item['categoria']} — {item['local']} — {item['url']}"
+        for item in FACULDADES_PRIORITARIAS
+    ]
+    cursos_prioritarios = [
+        f"{item['nome']} — {item['perfil']} — {item['url']}"
+        for item in CURSOS_PRIORITARIOS
+    ]
     try:
         fontes = _buscar_fontes(safe_context)
         client = OpenAI(
@@ -389,6 +450,8 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                         'Não responda com itens de memória nem invente nomes, links ou dados. '
                         'Releia todo o contexto anonimizado do perfil e conecte cada justificativa a um dado específico dele. '
                         'Misture faculdades públicas e privadas, presenciais e EAD, com pelo menos uma fora do eixo Rio-São Paulo. '
+                        'Priorize as instituições do catálogo oficial fornecido no contexto quando elas oferecerem o curso escolhido; '
+                        'não substitua esse catálogo por e-MEC, gov.br ou um agregador como recomendação principal. '
                         'Misture livro introdutório, técnico/avançado e leitura ligada ao interesse do perfil. '
                         'Inclua curso gratuito, pago e ligado ao interesse específico. '
                         'Toda sugestão é uma possibilidade, nunca uma obrigação ou diagnóstico. '
@@ -410,6 +473,8 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                             'item': ['tipo', 'titulo', 'descricao', 'o_que_fazer', 'como_fazer', 'opcoes', 'por_que_pode_fazer_sentido', 'url', 'nivel', 'estimativa_tempo', 'custo', 'alcance', 'modalidade'],
                         },
                         'fontes_tavily': fontes,
+                        'instituicoes_prioritarias_do_produto': faculdades_prioritarias,
+                        'plataformas_prioritarias_de_cursos_do_produto': cursos_prioritarios,
                     }, ensure_ascii=False),
                 },
             ],
