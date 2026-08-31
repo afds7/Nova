@@ -128,6 +128,80 @@ def _opcoes_por_area(area: str, tipo: str) -> list[str]:
     return []
 
 
+def _faculdade_obrigatoria(area: str, categoria: str) -> dict[str, Any]:
+    base: dict[str, dict[str, str]] = {
+        'publica': {
+            'nome': 'USP',
+            'titulo': f'{area} — USP',
+            'descricao': f'Universidade pública brasileira de referência para pesquisar graduações relacionadas a {area}.',
+            'custo': 'pública',
+            'alcance': 'nacional',
+            'modalidade': 'presencial',
+            'url': 'https://www5.usp.br',
+            'opcoes': ['USP', 'FUVEST', 'SiSU'],
+        },
+        'privada': {
+            'nome': 'PUC-SP',
+            'titulo': f'{area} — PUC-SP',
+            'descricao': f'Instituição privada reconhecida para comparar cursos, bolsas e projetos ligados a {area}.',
+            'custo': 'privada, com bolsas',
+            'alcance': 'nacional',
+            'modalidade': 'presencial',
+            'url': 'https://www.pucsp.br',
+            'opcoes': ['PUC-SP', 'ProUni', 'FIES'],
+        },
+        'internacional': {
+            'nome': 'Stanford',
+            'titulo': f'{area} — Stanford University',
+            'descricao': f'Universidade internacional de referência para comparar formações, trilhas abertas e possibilidades globais em {area}.',
+            'custo': 'internacional, com bolsas possíveis',
+            'alcance': 'internacional',
+            'modalidade': 'presencial e recursos online',
+            'url': 'https://www.stanford.edu',
+            'opcoes': ['Stanford University', 'Bolsas internacionais', 'Cursos abertos'],
+        },
+    }
+    item = base[categoria]
+    return {
+        'tipo': 'faculdade',
+        'titulo': item['titulo'],
+        'descricao': item['descricao'],
+        'por_que_pode_fazer_sentido': f'Garante uma comparação entre faculdade pública, privada e internacional antes de decidir por {area}.',
+        'o_que_fazer': f'Confirme no site oficial se há graduação, trilha, departamento ou formação diretamente conectada a {area}.',
+        'como_fazer': 'Compare grade curricular, forma de ingresso, bolsas, idioma, duração, localização e prazo de inscrição.',
+        'opcoes': item['opcoes'],
+        'url': item['url'],
+        'nivel': 'graduação',
+        'estimativa_tempo': 'Compare antes da inscrição',
+        'custo': item['custo'],
+        'alcance': item['alcance'],
+        'modalidade': item['modalidade'],
+    }
+
+
+def _categoria_faculdade(item: dict[str, Any]) -> str | None:
+    if item.get('tipo') != 'faculdade':
+        return None
+    text = ' '.join(str(item.get(field, '')) for field in ('titulo', 'descricao', 'custo', 'alcance', 'modalidade')).lower()
+    if 'internacional' in text or any(term in text for term in ('stanford', 'harvard', 'mit', 'berkeley', 'oxford', 'cambridge', 'toronto', 'lisboa', 'porto')):
+        return 'internacional'
+    if 'privada' in text or any(term in text for term in ('puc', 'mackenzie', 'fgv', 'insper', 'fiap', 'unip', 'estácio', 'estacio')):
+        return 'privada'
+    if 'pública' in text or 'publica' in text or any(term in text for term in ('usp', 'unicamp', 'unesp', 'uf', 'fatec', 'univesp')):
+        return 'publica'
+    return None
+
+
+def _garantir_faculdades_obrigatorias(itens: list[dict[str, Any]], area: str) -> list[dict[str, Any]]:
+    presentes = {_categoria_faculdade(item) for item in itens}
+    obrigatorias = ['publica', 'privada', 'internacional']
+    resultado = list(itens)
+    for categoria in obrigatorias:
+        if categoria not in presentes:
+            resultado.append(_faculdade_obrigatoria(area, categoria))
+    return resultado
+
+
 def _fallback_catalogo(area: str, competencia: str) -> list[dict[str, Any]]:
     """Curadoria utilizável mesmo quando Tavily/OpenAI estiverem indisponíveis."""
     return [
@@ -210,7 +284,7 @@ def _cache_key(context: dict[str, Any]) -> str:
     ).hexdigest()
     # v2 invalida respostas genéricas que foram guardadas antes da curadoria específica.
     # v6 invalida respostas anteriores ao catálogo prioritário de faculdades.
-    return f'nova:recommendations:v10:{digest}'
+    return f'nova:recommendations:v11:{digest}'
 
 
 def _buscar_fontes(context: dict[str, Any]) -> dict[str, list[dict[str, str]]]:
@@ -227,9 +301,10 @@ def _buscar_fontes(context: dict[str, Any]) -> dict[str, list[dict[str, str]]]:
             f'{area} faculdade nota de corte 2026 bolsas financiamento fora de São Paulo e Rio de Janeiro',
         ],
         'livros': [
-            f'melhores livros introdutórios e avançados para começar em {area}',
-            f'livros {area} recomendados por profissionais {perfil_hint}',
-            f'livros de {area} fundamentos prática carreira biografia leitura acessível recomendados',
+            f'melhores livros recentes e clássicos para estudar {area}',
+            f'livros {area} recomendados por professores profissionais e universidades {perfil_hint}',
+            f'livros de {area} fundamentos prática carreira biografia leitura acessível recomendados em português e inglês',
+            f'lista de livros essenciais {area} bibliografia graduação introdução avançado',
         ],
         'cursos': [
             f'curso gratuito {area} certificado 2026',
@@ -295,7 +370,7 @@ def _fallback(context: dict[str, Any]) -> dict[str, Any]:
     area = context['area'] or 'sua área de interesse'
     competencia = context['prioridade'] or 'a competência que você quer fortalecer'
     area_query = quote_plus(area)
-    specific_items = _itens_especificos(area, competencia)
+    specific_items = _garantir_faculdades_obrigatorias(_itens_especificos(area, competencia), area)
     return {
         'origem': 'fallback',
         'resumo': (
@@ -507,6 +582,11 @@ def _resposta_ia_esta_detalhada(raw: Any) -> bool:
     required = {'faculdade', 'livro', 'curso'}
     if not required.issubset(types) or len(valid) < 8:
         return False
+    faculdade_categories = {_categoria_faculdade(item) for item in valid}
+    if not {'publica', 'privada', 'internacional'}.issubset(faculdade_categories):
+        return False
+    if sum(1 for item in valid if str(item.get('tipo', '')).lower().strip() == 'livro') < 3:
+        return False
     legacy_titles = ('Faculdades para estudar ', 'Cursos introdutórios de ')
     if any(str(item.get('titulo', '')).startswith(legacy_titles) for item in valid):
         return False
@@ -567,12 +647,17 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                         'fornecidas abaixo para selecionar instituições, livros, cursos e comunidades. '
                         'Não responda com itens de memória nem invente nomes, links ou dados. '
                         'Releia todo o contexto anonimizado do perfil e conecte cada justificativa a um dado específico dele. '
-                        'Misture faculdades públicas e privadas, presenciais e EAD, com pelo menos uma fora do eixo Rio-São Paulo. '
+                        'As sugestões de faculdade são obrigatórias: inclua pelo menos uma faculdade pública brasileira, '
+                        'pelo menos uma faculdade privada brasileira e pelo menos uma universidade internacional. '
+                        'Essas três categorias devem aparecer independentemente da quantidade total de faculdades. '
+                        'Misture presenciais e EAD quando fizer sentido, com pelo menos uma opção fora do eixo Rio-São Paulo. '
                         'Priorize as instituições do catálogo oficial fornecido no contexto quando elas oferecerem o curso escolhido; '
                         'não substitua esse catálogo por e-MEC, gov.br ou um agregador como recomendação principal. '
+                        'Para livros, procure variedade nas fontes Tavily de livros e selecione obras diferentes por área. '
                         'Misture livro introdutório, técnico/avançado e leitura ligada ao interesse do perfil. '
                         'Para livros, varie autores, níveis e estilos (didático, técnico, prático, biográfico ou acessível), '
-                        'evite repetir títulos padrão e retorne somente título e resumo; o campo url de livros deve ser vazio. '
+                        'evite repetir títulos padrão e retorne no campo titulo apenas o nome do livro, sem link e sem texto de compra; '
+                        'o campo url de livros deve ser vazio. '
                         'Inclua curso gratuito, pago e ligado ao interesse específico. '
                         'Toda sugestão é uma possibilidade, nunca uma obrigação ou diagnóstico. '
                         'Se uma fonte não comprovar um detalhe, escreva que ele precisa ser confirmado na instituição.'
@@ -587,7 +672,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
                         'iep_atual': safe_context['nivel_iep'],
                         'formato_obrigatorio': {
                             'resumo': 'string específico para o curso escolhido',
-                            'itens': 'array com 5 a 8 faculdades, 3 a 5 livros e 3 a 5 cursos/certificações',
+                            'itens': 'array com 5 a 8 faculdades, incluindo obrigatoriamente publica brasileira, privada brasileira e internacional; 3 a 5 livros buscados nas fontes; e 3 a 5 cursos/certificações',
                             'proximos_passos': 'array com 6 a 10 ações em ordem cronológica, até matrícula e início das aulas',
                             'comunidades': 'array com 2 a 5 fóruns, associações, eventos ou grupos específicos da área',
                             'item': ['tipo', 'titulo', 'descricao', 'o_que_fazer', 'como_fazer', 'opcoes', 'por_que_pode_fazer_sentido', 'url (vazio para livros)', 'nivel', 'estimativa_tempo', 'custo', 'alcance', 'modalidade'],
@@ -610,7 +695,7 @@ def gerar_recomendacoes(context: dict[str, Any]) -> dict[str, Any]:
         result = {
             'origem': 'ia',
             'resumo': str(parsed.get('resumo', fallback['resumo']))[:700],
-            'itens': _normalizar_itens(parsed.get('itens'), fallback),
+            'itens': _garantir_faculdades_obrigatorias(_normalizar_itens(parsed.get('itens'), fallback), safe_context['area'] or 'sua área de interesse'),
             'proximos_passos': [str(item)[:300] for item in steps[:10]],
             'comunidades': [str(item)[:300] for item in parsed.get('comunidades', fallback['comunidades'])[:5]] if isinstance(parsed.get('comunidades', fallback['comunidades']), list) else fallback['comunidades'],
         }

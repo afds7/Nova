@@ -194,3 +194,12 @@ def test_recommendations_fallback_is_named_and_actionable(monkeypatch):
     assert result['itens']
     assert all('Faculdades para estudar' not in item['titulo'] for item in result['itens'])
     assert all(item['o_que_fazer'] and item['como_fazer'] for item in result['itens'])
+    faculdades = [item for item in result['itens'] if item['tipo'] == 'faculdade']
+    faculdade_text = ' '.join(
+        f"{item.get('titulo', '')} {item.get('custo', '')} {item.get('alcance', '')}"
+        for item in faculdades
+    ).lower()
+    assert 'pública' in faculdade_text or 'publica' in faculdade_text
+    assert 'privada' in faculdade_text
+    assert 'internacional' in faculdade_text
+    assert all(not item.get('url') for item in result['itens'] if item['tipo'] == 'livro')
