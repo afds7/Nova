@@ -284,7 +284,7 @@ def _cache_key(context: dict[str, Any]) -> str:
     ).hexdigest()
     # v2 invalida respostas genéricas que foram guardadas antes da curadoria específica.
     # v6 invalida respostas anteriores ao catálogo prioritário de faculdades.
-    return f'nova:recommendations:v11:{digest}'
+    return f'nova:recommendations:v12:{digest}'
 
 
 def _buscar_fontes(context: dict[str, Any]) -> dict[str, list[dict[str, str]]]:
