@@ -135,14 +135,7 @@ class LastAssessmentView(APIView):
             "weakest_point":   assessment.weakest_point,
             "gap":             assessment.gap,
             "action_plan":     assessment.action_plan,
-            "recommendations": gerar_recomendacoes({
-                'perfil_id': str(assessment.id),
-                'area': assessment.area,
-                'prioridade': assessment.weakest_point,
-                'perfil_hint': f'{assessment.strongest_point}; diagnóstico: {assessment.diagnostic}',
-                'pontos_fortes': [assessment.strongest_point],
-                'nivel_iep': assessment.iep_score,
-            }),
+            "recommendations": None,
         }
         cache.set(assessment_cache_key(email), payload, 60)
         return Response(payload, status=status.HTTP_200_OK)

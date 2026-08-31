@@ -64,7 +64,7 @@ export default function Quiz() {
   const {
     currentStep, answers, leadInfo,
     setAnswer, setLeadInfo, nextStep, prevStep,
-    resetQuiz, actionPlan, recommendations, setActionPlan, setRecommendations,
+    actionPlan, setActionPlan,
   } = useQuizStore();
 
   const [localName, setLocalName]       = useState('');
@@ -126,27 +126,6 @@ export default function Quiz() {
     return () => { cancelled = true; };
   }, [currentStep, assessmentId, setActionPlan]);
 
-  // As sugestões são vinculadas ao diagnóstico recém-criado, sem reaproveitar outro e-mail.
-  useEffect(() => {
-    if (currentStep !== QUESTIONS.length + 2 || !assessmentId || recommendations) return;
-
-    let cancelled = false;
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
-    fetch(`${apiUrl}/api/assessments/${assessmentId}/recommendations/`)
-      .then(async (response) => {
-        if (!response.ok) return null;
-        return response.json() as Promise<{ recommendations?: import('../store/useRecommendationsStore').RecommendationsData | null }>;
-      })
-      .then((data) => {
-        if (!cancelled && data?.recommendations) setRecommendations(data.recommendations);
-      })
-      .catch(() => {
-        // O diagnóstico continua disponível mesmo se as sugestões não carregarem.
-      });
-
-    return () => { cancelled = true; };
-  }, [currentStep, assessmentId, recommendations, setRecommendations]);
-
   // Guard: se currentStep for 0 (estado inicial antes da LandingPage transicionar), não renderiza nada
   if (currentStep === 0) return null;
 
@@ -177,7 +156,6 @@ export default function Quiz() {
           const data = await response.json(); 
           setAssessmentId(data.id || null);
           setActionPlan(data.action_plan); 
-          setRecommendations(data.recommendations || null);
 
           // O diagnóstico já foi salvo: mostre o resultado sem esperar a sessão.
           nextStep();
