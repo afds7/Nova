@@ -71,9 +71,12 @@ export const useRecommendationsStore = create<RecommendationsState>((set) => ({
   error: null,
 
   fetchRecommendations: async (profileId) => {
-    set({ isLoading: true, error: null });
+    set({ data: null, isLoading: true, error: null });
     try {
-      const response = await fetch(`${apiBase()}/api/recomendacoes/?profile_id=${encodeURIComponent(profileId)}`);
+      const response = await fetch(
+        `${apiBase()}/api/recomendacoes/?profile_id=${encodeURIComponent(profileId)}&_=${Date.now()}`,
+        { cache: 'no-store' }
+      );
       const body = await response.json().catch(() => ({}));
       if (!response.ok) throw new Error(body.error || `Erro ${response.status}`);
       set({ data: normalizeRecommendations(body as Partial<RecommendationsData>), isLoading: false });

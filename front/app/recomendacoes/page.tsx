@@ -36,8 +36,9 @@ export default function RecommendationsPage() {
     () => data?.itens.filter((item) => filter === 'todos' || item.tipo === filter) || [],
     [data, filter]
   );
+  const isGeneratingRecommendations = status === 'loading' || isLoading || (status === 'authenticated' && profileId && data?.perfil_id !== profileId);
 
-  if (status === 'loading' || (isLoading && !data)) {
+  if (isGeneratingRecommendations) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-[#f1f5f9] px-5">
         <div className="w-full max-w-sm rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm">

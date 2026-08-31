@@ -3,7 +3,7 @@
 import { useEffect } from 'react';
 import { useSession, signOut } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { useDashboardStore, CompetencyScore } from '../../store/useDashboardStore';
 import PortfolioUpload from '../../components/PortfolioUpload';
 import NovaLogo from '../../components/NovaLogo';
@@ -230,6 +230,30 @@ export function DashboardPage() {
             )}
           </motion.div>
         )}
+
+        <motion.section
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.4, delay: 0.12 }}
+          className="rounded-2xl border border-blue-100 bg-white p-5 shadow-sm md:col-span-2 md:p-6"
+        >
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-[#2c9be3]">Sugestões personalizadas</p>
+              <h2 className="mt-1 text-lg font-black text-slate-800">Veja faculdades, cursos e livros para o seu perfil</h2>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-500">
+                Vamos te levar para a página de sugestões; a geração acontece lá, com uma tela de carregamento enquanto montamos as recomendações.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => router.push('/recomendacoes')}
+              className="w-full rounded-xl bg-[#2c9be3] px-4 py-3 text-sm font-bold text-white transition hover:bg-[#2188ca] md:w-auto"
+            >
+              Abrir sugestões
+            </button>
+          </div>
+        </motion.section>
 
         {/* ── Competências ──────────────────────────────────────────── */}
         <motion.div
