@@ -38,7 +38,25 @@ export default function RecommendationsPage() {
   );
 
   if (status === 'loading' || (isLoading && !data)) {
-    return <main className="min-h-screen bg-[#f1f5f9] p-5 md:p-10"><div className="mx-auto max-w-6xl space-y-5"><div className="h-20 animate-pulse rounded-2xl bg-white" /><div className="h-52 animate-pulse rounded-2xl bg-white" /><div className="h-64 animate-pulse rounded-2xl bg-white" /></div></main>;
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-[#f1f5f9] px-5">
+        <div className="w-full max-w-sm rounded-2xl border border-slate-100 bg-white p-8 text-center shadow-sm">
+          <div className="mx-auto flex w-fit gap-1.5">
+            {[0, 0.15, 0.3].map((delay) => (
+              <span
+                key={delay}
+                className="h-2.5 w-2.5 animate-bounce rounded-full bg-[#2c9be3]"
+                style={{ animationDelay: `${delay}s` }}
+              />
+            ))}
+          </div>
+          <h1 className="mt-5 text-base font-bold text-slate-800">Estamos gerando as suas sugestões</h1>
+          <p className="mt-2 text-sm leading-relaxed text-slate-500">
+            Isso pode levar alguns segundos enquanto conectamos seu perfil aos próximos caminhos.
+          </p>
+        </div>
+      </main>
+    );
   }
 
   if (status === 'unauthenticated') return null;
